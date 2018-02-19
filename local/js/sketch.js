@@ -68,14 +68,25 @@ function setup() {
     }
 
   });
+
+  socket.on('weaponDelete', (data) => {
+    weapon.splice(data, 1);
+  });
 }
 
 function draw() {
   background(0);
-
+  
   if (_debugger) {
     console.log('SHIP: { x: ' + ship.pos.x + ' y: ' + ship.pos.y +" }");
   }
+
+  push();
+  fill(255);
+  textAlign(CENTER);
+  textSize(TEXT_SIZE * 1.5);
+  text('5:00', width / 2, 40);
+  pop();
 
   translate(width / 2, height / 2);
   let newscale = 50 / ship.size;
@@ -89,8 +100,8 @@ function draw() {
     weapon[i].update();
     for (let j = ships.length - 1; j >= 0; j--) {
       if (socket.id === ships[j].id) {        
-        if (weapon[i].hit(ships[j], ship)) {
-          weapon.splice(i, 1);
+        if (weapon[i].hit(ships[j], i)) {
+          // HIT
         }
       }
     }
@@ -118,12 +129,18 @@ function draw() {
       fill(255);
       textAlign(CENTER);
       textSize(TEXT_SIZE);
-      text(ships[i].id, ships[i].x, ships[i].y + ships[i].size * 2);
+      text(ships[i].id + '\n <3: ' + ships[i].health + '/' + ship.health, ships[i].x, ships[i].y + ships[i].size * 2);
     } else {
+      if (ships[i].health <= 0) {
+        ships[i].health = 100;
+        ships[i].x = 0;
+        ships[i].y = 0;
+        ships[i].heading = 0;
+      }
       fill(255);
       textAlign(CENTER);
       textSize(TEXT_SIZE);
-      text(ships[i].id, ship.pos.x, ship.pos.y + ship.size * 2);
+      text(ships[i].id + '\n <3: ' + ships[i].health + '/' + ship.health, ship.pos.x, ship.pos.y + ship.size * 2);
     }
   }
 
@@ -160,7 +177,6 @@ function draw() {
       socket.emit('update', shipData);
     }
   }
-
 }
 
 function keyPressed() {

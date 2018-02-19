@@ -15,8 +15,8 @@
     }
 })();
 
-console.log = () => {
-  throw "NO DATA";
+console = () => {
+    throw "NO DATA";
 }
 
 document.addEventListener('contextmenu', event => event.preventDefault());

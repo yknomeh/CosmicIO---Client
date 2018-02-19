@@ -122,7 +122,8 @@ io.sockets.on('connection', (socket) => {
 
   })
   socket.on('health', (data) => {
-    playerShip.health += data;
+    playerShip.health += data.damage;
+    io.sockets.emit('weaponDelete', data.splice)
   })
 
   socket.on('weapon', (data) => {

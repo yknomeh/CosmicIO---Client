@@ -5,7 +5,7 @@ class Weapon {
     this.velocity = p5.Vector.fromAngle(angle);
     this.velocity.mult(vel);
 
-    this.damage = 1;
+    this.damage = 10;
   }
 
   render() {
@@ -23,15 +23,18 @@ class Weapon {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  hit(ship, constructorShip) {
+  hit(ship, id) {
     this.sleep(200).then(()  => {
       let d = dist(this.pos.x, this.pos.y, ship.x, ship.y);
       if (d < ship.size) {
         if (this.id !== socket.id) {
-          // console.log("user " + socket.id + ' hit by' + this.id)
-          socket.emit('health', -this.damage);
-        }
-        return true;
+          let data = {
+            damage: -this.damage,
+            splice: id
+          };
+          socket.emit('health', data);
+          return true;
+        } 
       } else {
         return false;
       }
