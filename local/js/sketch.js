@@ -15,6 +15,9 @@ const AMOUNT_OF_MOONS = 10;
 const TEXT_SIZE = 18;
 
 let zoom = 1;
+let timer = "NaN:NaN";
+
+let _hub = true;
 
 let _debugger = false;
 
@@ -72,6 +75,15 @@ function setup() {
   socket.on('weaponDelete', (data) => {
     weapon.splice(data, 1);
   });
+
+  socket.on('time', (data) => {
+    timer = data.minutes + ":" + data.seconds;
+  });
+
+  socket.on('game', (data) => {
+    document.title = data.title;
+    _hub = data.hub;
+  });
 }
 
 function draw() {
@@ -81,12 +93,22 @@ function draw() {
     console.log('SHIP: { x: ' + ship.pos.x + ' y: ' + ship.pos.y +" }");
   }
 
-  push();
-  fill(255);
-  textAlign(CENTER);
-  textSize(TEXT_SIZE * 1.5);
-  text('5:00', width / 2, 40);
-  pop();
+  // TIMER
+  if (_hub) {
+    push();
+    fill(255);
+    textAlign(CENTER);
+    textSize(TEXT_SIZE * 1.5);
+    text('Preparing game\n' + timer, width / 2, 40);
+    pop();
+  } else {
+    push();
+    fill(255);
+    textAlign(CENTER);
+    textSize(TEXT_SIZE * 1.5);
+    text(timer, width / 2, 40);
+    pop();
+  }
 
   translate(width / 2, height / 2);
   let newscale = 50 / ship.size;

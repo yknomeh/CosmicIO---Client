@@ -11,11 +11,69 @@ let ships = [];
 let weapon = [];
 let dust = [];
 
+let disconnectALL = false;
+
 let lasers_counter = 0;
 
 const RENDER_SIZE = 5;
 const AMOUNT_OF_DUST = 500;
 const AMOUNT_OF_MOONS = 10;
+
+const HUB_TIME = 1;
+const GAME_TIME = 5;
+
+let hubNgameData = {
+  title: 'CosmicIO - Preparing match',
+  hub: true
+}
+
+
+let countDown = (duration) => {
+  let t = duration, minutes, seconds;
+  setInterval(function () {
+      minutes = parseInt(t / 60, 10);
+      seconds = parseInt(t % 60, 10);
+
+      let data = {
+        minutes: minutes < 10 ? "0" + minutes : minutes,
+        seconds:  seconds < 10 ? "0" + seconds : seconds
+      }
+      io.sockets.emit('time', data)
+      io.sockets.emit('game', hubNgameData);
+      if (--t < 0) {
+        clearInterval(this)
+      }
+  }, 1000);
+}
+
+function hubGame(t) {
+  return new Promise(resolve => {
+    countDown(60 * t)
+    setTimeout(resolve, t * 1000 * 60)
+  });
+}
+
+function gameTime(t) {
+  return new Promise(resolve => {
+    countDown(60 * t)
+    setTimeout(resolve, t * 1000 * 60)
+  });
+}
+
+function startGame() {
+  hubGame(HUB_TIME).then(() => {
+    hubNgameData = {
+      title: 'CosmicIO - Game started',
+      hub: false
+    }
+    gameTime(GAME_TIME).then(() => {
+      disconnectALL = true;
+    })
+  })
+}
+
+// Starting game
+startGame()
 
 class Ship {
   constructor(id, x, y, s, heading, health) {
@@ -87,6 +145,16 @@ io.sockets.on('connection', (socket) => {
   let playerShip;
   
   socket.on('update', (shipData) => {
+
+    if (disconnectALL) {
+      disconnectALL = false;
+      hubNgameData = {
+        title: 'CosmicIO - Preparing match',
+        hub: true
+      }
+      socket.disconnect(true);
+      startGame()
+    }
 
 
     if (old_pos_x != undefined) {
