@@ -17,7 +17,11 @@ const TEXT_SIZE = 18;
 let zoom = 1;
 let timer = "NaN:NaN";
 
+let usrInput;
+let username = " ";
+
 let _hub = true;
+let _canPlay = true;
 
 let _debugger = false;
 
@@ -30,10 +34,12 @@ function setup() {
   ship = new Ship(60, 0, 0, RENDER_SIZE);
 
   // Connection
-  socket = io.connect('http://'+window.location.hostname+':3000');
+  socket = io.connect('http://' + window.location.hostname + ':3000');
 
   socket.on('connect', function () {
-
+    socket.on('hubOff', (data) => {
+      _canPlay = data.spec;
+    });
   });
 
   socket.on('disconnect', function () {
@@ -45,7 +51,8 @@ function setup() {
     y: ship.pos.y,
     heading: ship.heading,
     size: ship.size,
-    health: ship.health
+    health: ship.health,
+    usrname: username
   }
 
   socket.emit('start', shipData);
@@ -66,8 +73,8 @@ function setup() {
 
   socket.on('weaponData', (data) => {
     for (let i = data.length - 1; i >= 0; i--) {
-        let pos = createVector(data[i].x, data[i].y);
-        weapon.push(new Weapon(data[i].id, pos, data[i].heading, WEAPON_VELOCITY));
+      let pos = createVector(data[i].x, data[i].y);
+      weapon.push(new Weapon(data[i].id, pos, data[i].heading, WEAPON_VELOCITY));
     }
 
   });
@@ -84,119 +91,170 @@ function setup() {
     document.title = data.title;
     _hub = data.hub;
   });
+
+  usrInput = createInput();
 }
 
 function draw() {
   background(0);
-  
+
   if (_debugger) {
-    console.log('SHIP: { x: ' + ship.pos.x + ' y: ' + ship.pos.y +" }");
+    console.log('SHIP: { x: ' + ship.pos.x + ' y: ' + ship.pos.y + " }");
   }
 
+  push();
+  usrInput.position(width * 0.35, height / 2.3);
+  usrInput.class('hub');
+  pop();
+  
   // TIMER
   if (_hub) {
+    $('.hub').show();
     push();
     fill(255);
     textAlign(CENTER);
     textSize(TEXT_SIZE * 1.5);
     text('Preparing game\n' + timer, width / 2, 40);
     pop();
-  } else {
+
+    push();
+    fill(255);
+    textAlign(CENTER);
+    textSize(TEXT_SIZE * 2);
+    text('USERNAME', width / 2, height / 2.5);
+    pop();
+    
+  } else if (_canPlay) {
+    $('.hub').hide();
     push();
     fill(255);
     textAlign(CENTER);
     textSize(TEXT_SIZE * 1.5);
     text(timer, width / 2, 40);
     pop();
-  }
 
-  translate(width / 2, height / 2);
-  let newscale = 50 / ship.size;
-  zoom = lerp(zoom, newscale, 0.1);
-  scale(zoom);
-  translate(-ship.pos.x, -ship.pos.y);
 
-  for (let i = weapon.length - 1; i >= 0; i--) {
+    translate(width / 2, height / 2);
+    let newscale = 50 / ship.size;
+    zoom = lerp(zoom, newscale, 0.1);
+    scale(zoom);
+    translate(-ship.pos.x, -ship.pos.y);
 
-    weapon[i].render();
-    weapon[i].update();
-    for (let j = ships.length - 1; j >= 0; j--) {
-      if (socket.id === ships[j].id) {        
-        if (weapon[i].hit(ships[j], i)) {
-          // HIT
+    for (let i = weapon.length - 1; i >= 0; i--) {
+
+      weapon[i].render();
+      weapon[i].update();
+      for (let j = ships.length - 1; j >= 0; j--) {
+        if (socket.id === ships[j].id) {
+          if (weapon[i].hit(ships[j], i)) {
+            // HIT
+          }
         }
       }
     }
-  }
 
-  for (let i = ships.length - 1; i >= 0; i--) {
-    if (socket.id !== ships[i].id) {
-      push();
-      translate(ships[i].x, ships[i].y);
-      rotate(ships[i].heading);
-      fill(0);
-      stroke(255, 0 ,0);
+    for (let i = ships.length - 1; i >= 0; i--) {
+      if (socket.id !== ships[i].id) {
+        push();
+        translate(ships[i].x, ships[i].y);
+        rotate(ships[i].heading);
+        fill(0);
+        stroke(255, 0, 0);
 
-      beginShape();
-      vertex(-2 / 3 * ships[i].size, -ships[i].size);
+        beginShape();
+        vertex(-2 / 3 * ships[i].size, -ships[i].size);
 
-      vertex(4 / 3 * ships[i].size, 0);
+        vertex(4 / 3 * ships[i].size, 0);
 
-      vertex(-2 / 3 * ships[i].size, ships[i].size);
+        vertex(-2 / 3 * ships[i].size, ships[i].size);
 
-      vertex(0 / 3 * ships[i].size, 0);
-      vertex(-2 / 3 * ships[i].size, -ships[i].size);
-      endShape();
-      pop();
-      fill(255);
-      textAlign(CENTER);
-      textSize(TEXT_SIZE);
-      text(ships[i].id + '\n <3: ' + ships[i].health + '/' + ship.health, ships[i].x, ships[i].y + ships[i].size * 2);
-    } else {
-      if (ships[i].health <= 0) {
-        ships[i].health = 100;
-        ships[i].x = 0;
-        ships[i].y = 0;
-        ships[i].heading = 0;
+        vertex(0 / 3 * ships[i].size, 0);
+        vertex(-2 / 3 * ships[i].size, -ships[i].size);
+        endShape();
+        pop();
+        fill(255);
+        textAlign(CENTER);
+        textSize(TEXT_SIZE);
+        text(ships[i].username + '\n <3: ' + ships[i].health + '/' + ship.health, ships[i].x, ships[i].y + ships[i].size * 2);
+      } else {
+        if (ships[i].health <= 0) {
+          ships[i].health = 100;
+          ships[i].x = 0;
+          ships[i].y = 0;
+          ships[i].heading = 0;
+        }
+        fill(255);
+        textAlign(CENTER);
+        textSize(TEXT_SIZE);
+        text(ships[i].username + '\n <3: ' + ships[i].health + '/' + ship.health, ship.pos.x, ship.pos.y + ship.size * 2);
       }
-      fill(255);
-      textAlign(CENTER);
-      textSize(TEXT_SIZE);
-      text(ships[i].id + '\n <3: ' + ships[i].health + '/' + ship.health, ship.pos.x, ship.pos.y + ship.size * 2);
     }
-  }
 
-  for (let i = dust.length - 1; i >= 0; i--) {
-    dust[i].render();
-    if (ship.collectDust(dust[i])) {
-      socket.emit('updatedust', i);
-    }
-  }
-
-  for (let i = moon.length - 1; i >= 0; i--) {
-    moon[i].render();
-    if (ship.moonGravity(moon[i])) {
-
-    }
-  }
-
-
-  ship.render();
-  ship.update();
-  ship.shipRotate();
-  ship.edges();
-  ship.state();
-
-  for (let i = ships.length - 1; i >= 0; i--) {
-    if (ships[i].id === socket.id) {
-      let shipData = {
-        x: ship.pos.x,
-        y: ship.pos.y,
-        heading: ship.heading,
-        size: ship.size,
-        health: ships[i].health
+    for (let i = dust.length - 1; i >= 0; i--) {
+      dust[i].render();
+      if (ship.collectDust(dust[i])) {
+        socket.emit('updatedust', i);
       }
-      socket.emit('update', shipData);
+    }
+
+    ship.render();
+    ship.update();
+    ship.shipRotate();
+    ship.edges();
+    ship.state();
+
+    for (let i = ships.length - 1; i >= 0; i--) {
+      if (ships[i].id === socket.id) {
+        let shipData = {
+          x: ship.pos.x,
+          y: ship.pos.y,
+          heading: ship.heading,
+          size: ship.size,
+          health: ships[i].health,
+          usrname: username
+        }
+        socket.emit('update', shipData);
+      }
+    }
+  } else {
+    $('.hub').hide();
+    push();
+    fill(255);
+    textAlign(CENTER);
+    textSize(TEXT_SIZE * 1.5);
+    text('You are spectator\n' + timer, width / 2, 40);
+    pop();
+
+    for (let i = ships.length - 1; i >= 0; i--) {
+      translate(width / 2, height / 2);
+      let newscale = 50 / ship.size;
+      zoom = lerp(zoom, newscale, 0.1);
+      scale(zoom);
+      translate(-ships[0].x, -ships[0].y);
+
+      if (socket.id !== ships[i].id) {
+        push();
+        translate(ships[i].x, ships[i].y);
+        rotate(ships[i].heading);
+        fill(0);
+        stroke(255, 255, 0);
+
+        beginShape();
+        vertex(-2 / 3 * ships[i].size, -ships[i].size);
+
+        vertex(4 / 3 * ships[i].size, 0);
+
+        vertex(-2 / 3 * ships[i].size, ships[i].size);
+
+        vertex(0 / 3 * ships[i].size, 0);
+        vertex(-2 / 3 * ships[i].size, -ships[i].size);
+        endShape();
+        pop();
+        fill(255);
+        textAlign(CENTER);
+        textSize(TEXT_SIZE);
+        text(ships[i].username + '\n <3: ' + ships[i].health + '/' + ship.health, ships[i].x, ships[i].y + ships[i].size * 2);
+      }
     }
   }
 }
@@ -222,6 +280,11 @@ function keyPressed() {
       heading: ship.heading
     }
     socket.emit('weapon', weaponData);
+  } else if (keyCode == 13) {
+    // On Press 'Enter'
+    if (_hub) {
+      username = usrInput.value();
+    }
   }
 
 }
@@ -229,7 +292,7 @@ function keyPressed() {
 function keyReleased() {
   if (keyCode == UP_ARROW || keyCode == 87) {
     ship.engineWorking(false);
-  } else if (keyCode == RIGHT_ARROW || keyCode == 68 ) {
+  } else if (keyCode == RIGHT_ARROW || keyCode == 68) {
     ship.rotation = 0;
   } else if (keyCode == LEFT_ARROW || keyCode == 65) {
     ship.rotation = 0;

@@ -13,18 +13,17 @@ let dust = [];
 
 let disconnectALL = false;
 
-let lasers_counter = 0;
-
 const RENDER_SIZE = 5;
 const AMOUNT_OF_DUST = 500;
 const AMOUNT_OF_MOONS = 10;
 
-const HUB_TIME = 1;
-const GAME_TIME = 5;
+const HUB_TIME = 0.2;
+const GAME_TIME = 3;
 
 let hubNgameData = {
   title: 'CosmicIO - Preparing match',
-  hub: true
+  hub: true,
+  gate: true
 }
 
 
@@ -64,7 +63,8 @@ function startGame() {
   hubGame(HUB_TIME).then(() => {
     hubNgameData = {
       title: 'CosmicIO - Game started',
-      hub: false
+      hub: false,
+      gate: false
     }
     gameTime(GAME_TIME).then(() => {
       disconnectALL = true;
@@ -76,13 +76,14 @@ function startGame() {
 startGame()
 
 class Ship {
-  constructor(id, x, y, s, heading, health) {
+  constructor(id, x, y, s, heading, health, usrnm) {
     this.id = id;
     this.x = x;
     this.y = y;
     this.size = s;
     this.heading = heading;
     this.health = health;
+    this.username = usrnm;
   }
 }
 
@@ -109,7 +110,6 @@ app.use(express.static('local'))
 console.log("Server is running!")
 
 setInterval(hjerteslag, SERVER_BEAT);
-
 function hjerteslag() {
   io.sockets.emit('hjerteslag', ships)
   io.sockets.emit('cosmicdust', dust)
@@ -125,7 +125,17 @@ io.sockets.on('connection', (socket) => {
   console.log('-New Connection-')
   console.log('================')
   console.log('\nID: ' + socket.id + ',')
-
+  if (!hubNgameData.gate) {
+    let hubOff = {
+      spec: false
+    }
+    io.to(socket.id).emit('hubOff', hubOff)
+  } else {
+    let hubOff = {
+      spec: true
+    }
+    io.to(socket.id).emit('hubOff', hubOff)
+  }
   // Starting game
   socket.on('start', (shipData) => {
     console.log("X: " + shipData.x +
@@ -135,7 +145,17 @@ io.sockets.on('connection', (socket) => {
     ",\nHEALTH: " + shipData.health
   )
   console.log('\n================')
-  ships.push(new Ship(socket.id, shipData.x , shipData.y, shipData.size, shipData.heading, shipData.health))
+  if (hubNgameData.gate) {
+    ships.push(new Ship(
+      socket.id,
+      shipData.x,
+      shipData.y,
+      shipData.size,
+      shipData.heading,
+      shipData.health,
+      shipData.usrname
+    ))
+  }
   })
 
   // Updating game
@@ -150,7 +170,8 @@ io.sockets.on('connection', (socket) => {
       disconnectALL = false;
       hubNgameData = {
         title: 'CosmicIO - Preparing match',
-        hub: true
+        hub: true,
+        gate: true
       }
       socket.disconnect(true);
       startGame()
@@ -184,6 +205,7 @@ io.sockets.on('connection', (socket) => {
       playerShip.size = shipData.size;
       playerShip.heading = shipData.heading;
       playerShip.health = shipData.health;
+      playerShip.username = shipData.usrname;
     } catch (e) {
 
     }
