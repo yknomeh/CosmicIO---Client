@@ -218,6 +218,7 @@ function draw() {
     }
   } else {
     $('.hub').hide();
+    
     push();
     fill(255);
     textAlign(CENTER);

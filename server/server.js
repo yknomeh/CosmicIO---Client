@@ -11,6 +11,8 @@ let ships = [];
 let weapon = [];
 let dust = [];
 
+let spectators = [];
+
 let disconnectALL = false;
 
 const RENDER_SIZE = 5;
@@ -72,6 +74,17 @@ function startGame() {
   })
 }
 
+function findShip(id) {
+
+  for (var i = 0; i < ships.length; i++) {
+      if (ships[i].id == id) {
+          return i;
+      }
+  }
+  
+  return -1;
+}
+
 // Starting game
 startGame()
 
@@ -101,6 +114,12 @@ class Dust {
     this.x = x;
     this.y = y;
     this.size = s;
+  }
+}
+
+class Spectator {
+  constructor(id) {
+    this.id = id;
   }
 }
 
@@ -155,6 +174,8 @@ io.sockets.on('connection', (socket) => {
       shipData.health,
       shipData.usrname
     ))
+  } else {
+    spectators.push(new Spectator(socket.id))
   }
   })
 
@@ -230,8 +251,13 @@ io.sockets.on('connection', (socket) => {
     console.log('--Disconnected--')
     console.log('================')
     console.log("\nID: " + socket.id)
+    
+    if (findShip(socket.id) === -1) {
+      console.log('\n-=SPECTATOR=-')
+    } else {
+      ships.splice(findShip(socket.id), 1)
+    }
 
-    ships.splice(ships.indexOf(socket.id), 1)
     console.log('\n================')
   })
 })
