@@ -214,6 +214,8 @@ io.sockets.on('connection', (socket) => {
     } else {
       old_size = shipData.size;
     }
+
+
     for (let i = 0; i < ships.length; i++) {
       if (socket.id == ships[i].id) {
         playerShip = ships[i];
@@ -227,6 +229,11 @@ io.sockets.on('connection', (socket) => {
       playerShip.heading = shipData.heading;
       playerShip.health = shipData.health;
       playerShip.username = shipData.usrname;
+
+      if (playerShip.health <= 0) {
+        // Player is dead
+        ships.splice(findShip(socket.id), 1)
+      }
     } catch (e) {
 
     }

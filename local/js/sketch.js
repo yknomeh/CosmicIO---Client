@@ -133,7 +133,6 @@ function draw() {
     text(timer, width / 2, 40);
     pop();
 
-
     translate(width / 2, height / 2);
     let newscale = 50 / ship.size;
     zoom = lerp(zoom, newscale, 0.1);
@@ -178,10 +177,7 @@ function draw() {
         text(ships[i].username + '\n <3: ' + ships[i].health + '/' + ship.health, ships[i].x, ships[i].y + ships[i].size * 2);
       } else {
         if (ships[i].health <= 0) {
-          ships[i].health = 100;
-          ships[i].x = 0;
-          ships[i].y = 0;
-          ships[i].heading = 0;
+          _canPlay = false;
         }
         fill(255);
         textAlign(CENTER);
@@ -218,7 +214,7 @@ function draw() {
     }
   } else {
     $('.hub').hide();
-    
+
     push();
     fill(255);
     textAlign(CENTER);
@@ -275,12 +271,14 @@ function keyPressed() {
     ship.boostOn(true);
   } else if (keyCode == 32) {
     // On Press 'Space'
-    let weaponData = {
-      x: ship.pos.x,
-      y: ship.pos.y,
-      heading: ship.heading
+    if (_canPlay) {
+      let weaponData = {
+        x: ship.pos.x,
+        y: ship.pos.y,
+        heading: ship.heading
+      }
+      socket.emit('weapon', weaponData);
     }
-    socket.emit('weapon', weaponData);
   } else if (keyCode == 13) {
     // On Press 'Enter'
     if (_hub) {
