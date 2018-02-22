@@ -1,11 +1,11 @@
 class Weapon {
-  constructor(id, s, angle, vel) {
+  constructor(id, s, angle, vel, shoter) {
     this.id = id;
     this.pos = createVector(s.x, s.y);
     this.velocity = p5.Vector.fromAngle(angle);
     this.velocity.mult(vel);
 
-    this.damage = 10;
+    this.damage = 5;
   }
 
   render() {
@@ -24,13 +24,14 @@ class Weapon {
   }
 
   hit(ship, id) {
-    this.sleep(200).then(()  => {
+    this.sleep(150).then(()  => {
       let d = dist(this.pos.x, this.pos.y, ship.x, ship.y);
       if (d < ship.size) {
         if (this.id !== socket.id) {
           let data = {
             damage: -this.damage,
-            splice: id
+            splice: id,
+            shoter: this.id
           };
           socket.emit('health', data);
           return true;

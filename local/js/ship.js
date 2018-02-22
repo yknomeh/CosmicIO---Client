@@ -85,7 +85,8 @@ class Ship {
   collectDust(dust) {
     let d = p5.Vector.dist(this.pos, dust.pos);
     if (d < this.size + dust.size) {
-      this.size += dust.size * 0.02;
+      // this.size += dust.size * 0.02;
+      socket.emit('addpoints', 10);
       return true;
     } else {
       return false;

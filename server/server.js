@@ -5,22 +5,25 @@ const app = express()
 const server = app.listen(3000)
 const io = socket(server)
 
-const SERVER_BEAT = 10;
+/* CONFIG */
+const SERVER_BEAT = 10; /* refreshing per ms */
+
+const RENDER_SIZE = 5; /* size of dust rendering */
+const AMOUNT_OF_DUST = 500; /* amount of dust */
+
+const HUB_TIME = 0.3; /* lobby/hub time */
+const GAME_TIME = 5; /* game time */
+/* END of CONFIG */
 
 let ships = [];
 let weapon = [];
 let dust = [];
 
+let messages = [];
+
 let spectators = [];
 
 let disconnectALL = false;
-
-const RENDER_SIZE = 5;
-const AMOUNT_OF_DUST = 500;
-const AMOUNT_OF_MOONS = 10;
-
-const HUB_TIME = 0.2;
-const GAME_TIME = 3;
 
 let hubNgameData = {
   title: 'CosmicIO - Preparing match',
@@ -49,6 +52,7 @@ let countDown = (duration) => {
 
 function hubGame(t) {
   return new Promise(resolve => {
+    console.log('\n\n-=NEW GAME=-')
     countDown(60 * t)
     setTimeout(resolve, t * 1000 * 60)
   });
@@ -68,6 +72,7 @@ function startGame() {
       hub: false,
       gate: false
     }
+    console.log('\n\n-=GAME HAS STARTED=-')
     gameTime(GAME_TIME).then(() => {
       disconnectALL = true;
     })
@@ -85,11 +90,8 @@ function findShip(id) {
   return -1;
 }
 
-// Starting game
-startGame()
-
 class Ship {
-  constructor(id, x, y, s, heading, health, usrnm) {
+  constructor(id, x, y, s, heading, health, usrnm, score) {
     this.id = id;
     this.x = x;
     this.y = y;
@@ -97,6 +99,7 @@ class Ship {
     this.heading = heading;
     this.health = health;
     this.username = usrnm;
+    this.score = score;
   }
 }
 
@@ -123,10 +126,19 @@ class Spectator {
   }
 }
 
+class Message {
+  constructor(m) {
+      this.message = m;
+  }
+}
+
 
 app.use(express.static('local'))
 
 console.log("Server is running!")
+
+// Starting game
+startGame()
 
 setInterval(hjerteslag, SERVER_BEAT);
 function hjerteslag() {
@@ -134,6 +146,12 @@ function hjerteslag() {
   io.sockets.emit('cosmicdust', dust)
   io.sockets.emit('weaponData', weapon)
   weapon = [];
+  io.sockets.emit('messages', messages)
+}
+
+setInterval(deletemessages, 10*1000);
+function deletemessages() {
+  messages = [];
 }
 
 let connected = 0;
@@ -172,7 +190,8 @@ io.sockets.on('connection', (socket) => {
       shipData.size,
       shipData.heading,
       shipData.health,
-      shipData.usrname
+      shipData.usrname,
+      shipData.score
     ))
   } else {
     spectators.push(new Spectator(socket.id))
@@ -229,9 +248,11 @@ io.sockets.on('connection', (socket) => {
       playerShip.heading = shipData.heading;
       playerShip.health = shipData.health;
       playerShip.username = shipData.usrname;
+      playerShip.score = shipData.score;
 
       if (playerShip.health <= 0) {
         // Player is dead
+        messages.push(new Message('Player ' + ships[findShip(socket.id)].username + ' has been killed.'))
         ships.splice(findShip(socket.id), 1)
       }
     } catch (e) {
@@ -240,7 +261,12 @@ io.sockets.on('connection', (socket) => {
 
   })
   socket.on('health', (data) => {
-    playerShip.health += data.damage;
+    if(playerShip.health <= data.damage) {
+      playerShip.health += data.damage;
+      ships[findShip(data.shoter)].score += 50;
+    } else {
+      playerShip.health += data.damage;
+    }
     io.sockets.emit('weaponDelete', data.splice)
   })
 
@@ -250,6 +276,14 @@ io.sockets.on('connection', (socket) => {
 
   socket.on('updatedust', (data) => {
     dust.splice(data, 1)
+  })
+
+  socket.on('addpoints', (data) => {
+    ships[findShip(socket.id)].score += data;
+  })
+
+  socket.on('message', (data) => {
+    messages.push(new Message(data))
   })
 
   socket.on('disconnect', () => {

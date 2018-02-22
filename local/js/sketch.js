@@ -7,6 +7,11 @@ let dustData = [];
 let moon = [];
 let weapon = [];
 
+let leaderboard = [];
+let messageboard = [];
+
+let scr = 0;
+
 
 const RENDER_SIZE = 5;
 const WEAPON_VELOCITY = 25;
@@ -52,13 +57,18 @@ function setup() {
     heading: ship.heading,
     size: ship.size,
     health: ship.health,
-    usrname: username
+    usrname: username,
+    score: 0
   }
 
   socket.emit('start', shipData);
 
   socket.on('hjerteslag', (data) => {
     ships = data;
+    leaderboard = data;
+    leaderboard.sort((a, b) => {
+      return b.score - a.score
+    });
   });
 
   socket.on('cosmicdust', (data) => {
@@ -92,6 +102,10 @@ function setup() {
     _hub = data.hub;
   });
 
+  socket.on('messages', (data) => {
+    messageboard = _.takeRight(data, 5);
+  });
+
   usrInput = createInput();
 }
 
@@ -106,7 +120,7 @@ function draw() {
   usrInput.position(width * 0.35, height / 2.3);
   usrInput.class('hub');
   pop();
-  
+
   // TIMER
   if (_hub) {
     $('.hub').show();
@@ -123,14 +137,38 @@ function draw() {
     textSize(TEXT_SIZE * 2);
     text('USERNAME', width / 2, height / 2.5);
     pop();
-    
+
   } else if (_canPlay) {
     $('.hub').hide();
+
     push();
+
+    // TIMER
     fill(255);
     textAlign(CENTER);
     textSize(TEXT_SIZE * 1.5);
     text(timer, width / 2, 40);
+
+    // SCORE
+    textAlign(LEFT);
+    textSize(TEXT_SIZE);
+    text('SCORE: ' + scr, 10, height - 10);
+
+    // LEADERBOARD
+    for (let i = 0; i < 10 && i < leaderboard.length; i++) {
+      textAlign(RIGHT);
+      textSize(TEXT_SIZE);
+      let index = 1 + i;
+      text(index + ') ' + leaderboard[i].username + ' ' + leaderboard[i].score, width - 10, index * 20);
+    }
+
+    // MESSAGEBOARD
+    for (let i = 0; i < messageboard.length; i++) {
+      textAlign(LEFT);
+      textSize(TEXT_SIZE);
+      text(messageboard[i].message, 10, height / 2 + -i * 20);
+    }
+
     pop();
 
     translate(width / 2, height / 2);
@@ -183,7 +221,9 @@ function draw() {
         textAlign(CENTER);
         textSize(TEXT_SIZE);
         text(ships[i].username + '\n <3: ' + ships[i].health + '/' + ship.health, ship.pos.x, ship.pos.y + ship.size * 2);
+
       }
+
     }
 
     for (let i = dust.length - 1; i >= 0; i--) {
@@ -207,8 +247,10 @@ function draw() {
           heading: ship.heading,
           size: ship.size,
           health: ships[i].health,
-          usrname: username
+          usrname: username,
+          score: ships[i].score
         }
+        scr = ships[i].score
         socket.emit('update', shipData);
       }
     }
@@ -216,10 +258,26 @@ function draw() {
     $('.hub').hide();
 
     push();
+    // TIMER
     fill(255);
     textAlign(CENTER);
     textSize(TEXT_SIZE * 1.5);
     text('You are spectator\n' + timer, width / 2, 40);
+
+    // LEADERBOARD
+    for (let i = 0; i < 10 && i < leaderboard.length; i++) {
+      textAlign(RIGHT);
+      textSize(TEXT_SIZE);
+      let index = 1 + i;
+      text(index + ') ' + leaderboard[i].username + ' ' + leaderboard[i].score, width - 10, index * 20);
+    }
+
+    // MESSAGEBOARD
+    for (let i = 0; i < messageboard.length; i++) {
+      textAlign(LEFT);
+      textSize(TEXT_SIZE);
+      text(messageboard[i].message, 10, height / 2 + -i * 20);
+    }
     pop();
 
     for (let i = ships.length - 1; i >= 0; i--) {
@@ -271,7 +329,7 @@ function keyPressed() {
     ship.boostOn(true);
   } else if (keyCode == 32) {
     // On Press 'Space'
-    if (_canPlay) {
+    if (_canPlay && !_hub) {
       let weaponData = {
         x: ship.pos.x,
         y: ship.pos.y,
