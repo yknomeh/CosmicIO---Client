@@ -107,6 +107,8 @@ function setup() {
   });
 
   usrInput = createInput();
+  usrInput.max = 12;
+  
 }
 
 function draw() {
@@ -129,7 +131,14 @@ function draw() {
     textAlign(CENTER);
     textSize(TEXT_SIZE * 1.5);
     text('Preparing game\n' + timer, width / 2, 40);
-    pop();
+
+    // Hello
+    if (username != " " || username != "") {
+      textAlign(LEFT);
+      textSize(TEXT_SIZE);
+      text('Hello ' + username, 30, 30);
+      pop();
+    }
 
     push();
     fill(255);
@@ -339,8 +348,10 @@ function keyPressed() {
     }
   } else if (keyCode == 13) {
     // On Press 'Enter'
-    if (_hub) {
+    if (_hub && usrInput.value().length < 18) {
       username = usrInput.value();
+    } else if(usrInput.value().length >= 18) {
+      username = "Too long bruh";
     }
   }
 
