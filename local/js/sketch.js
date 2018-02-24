@@ -107,7 +107,6 @@ function setup() {
   });
 
   usrInput = createInput();
-  usrInput.max = 12;
   
 }
 
