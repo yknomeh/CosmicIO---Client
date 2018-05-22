@@ -12,6 +12,10 @@ let messageboard = [];
 
 let scr = 0;
 
+let alert = {
+  message: 'test2',
+  duration: 1
+};
 
 const RENDER_SIZE = 5;
 const WEAPON_VELOCITY = 25;
@@ -50,6 +54,11 @@ function setup() {
   socket.on('disconnect', function () {
     window.location.reload();
   });
+
+  socket.on('alert',function(alertdata)
+  {
+    alert=alertdata;
+  })
 
   let shipData = {
     x: ship.pos.x,
@@ -121,7 +130,7 @@ function draw() {
   usrInput.position(width * 0.35, height / 2.3);
   usrInput.class('hub');
   pop();
-
+  var delta = 1/frameRate();
   // TIMER
   if (_hub) {
     $('.hub').show();
@@ -319,6 +328,20 @@ function draw() {
         text(ships[i].username + '\n <3: ' + ships[i].health + '/' + ship.health, ships[i].x, ships[i].y + ships[i].size * 2);
       }
     }
+
+    //Alert
+    if(alert.duration>0)
+    {
+      push();
+      fill(255);
+      textAlign(LEFT);
+      textSize(TEXT_SIZE);
+      text(alert.message);
+      pop();
+      console.log(alert.message);
+      alert.duration -= delta;
+    }
+
   }
 }
 

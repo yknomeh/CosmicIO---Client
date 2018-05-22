@@ -31,6 +31,11 @@ let hubNgameData = {
   gate: true
 }
 
+let infoAlert = {
+  message: '',
+  duration: 0
+}
+
 
 let countDown = (duration) => {
   let t = duration, minutes, seconds;
@@ -203,7 +208,9 @@ io.sockets.on('connection', (socket) => {
   let old_pos_y;
   let old_size;
   let playerShip;
-  
+
+  socket.emit('alert',infoAlert={message:'elo',duration: 1});
+
   socket.on('update', (shipData) => {
 
     if (disconnectALL) {
@@ -279,7 +286,10 @@ io.sockets.on('connection', (socket) => {
   })
 
   socket.on('addpoints', (data) => {
-    ships[findShip(socket.id)].score += data;
+    let ship = ships[findShip(socket.id)];
+    ship.score += data;
+    ship.size ++;
+    ship.health *= 1.1;
   })
 
   socket.on('message', (data) => {
