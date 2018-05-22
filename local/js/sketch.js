@@ -229,7 +229,7 @@ function draw() {
         fill(255);
         textAlign(CENTER);
         textSize(TEXT_SIZE);
-        text(ships[i].username + '\n <3: ' + ships[i].health + '/' + ship.health, ships[i].x, ships[i].y + ships[i].size * 2);
+        text(ships[i].username + '\n <3: ' + ships[i].health, ships[i].x, ships[i].y + ships[i].size * 2);
       } else {
         if (ships[i].health <= 0) {
           _canPlay = false;
@@ -237,7 +237,7 @@ function draw() {
         fill(255);
         textAlign(CENTER);
         textSize(TEXT_SIZE);
-        text(ships[i].username + '\n <3: ' + ships[i].health + '/' + ship.health, ship.pos.x, ship.pos.y + ship.size * 2);
+        text(ships[i].username + '\n <3: ' + ships[i].health, ship.pos.x, ship.pos.y + ship.size * 2);
 
       }
 
@@ -325,7 +325,7 @@ function draw() {
         fill(255);
         textAlign(CENTER);
         textSize(TEXT_SIZE);
-        text(ships[i].username + '\n <3: ' + ships[i].health + '/' + ship.health, ships[i].x, ships[i].y + ships[i].size * 2);
+        text(ships[i].username + '\n <3: ' + ships[i].health, ships[i].x, ships[i].y + ships[i].size * 2);
       }
     }
 
