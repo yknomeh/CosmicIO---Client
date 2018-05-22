@@ -209,7 +209,7 @@ io.sockets.on('connection', (socket) => {
   let old_size;
   let playerShip;
 
-  socket.emit('alert',infoAlert={message:'elo',duration: 1});
+  alert('elo',5);
 
   socket.on('update', (shipData) => {
 
@@ -318,4 +318,9 @@ for (let i = 0; i < AMOUNT_OF_DUST; i++) {
   let x = Math.random() * (500 * RENDER_SIZE - -500 * RENDER_SIZE) + -500 * RENDER_SIZE;
   let y = Math.random() * (500 * RENDER_SIZE - -500 * RENDER_SIZE) + -500 * RENDER_SIZE;
   dust[i] = new Dust(15, x, y);
+}
+
+function alert(contents,duration)
+{
+    socket.emit('alert',infoAlert={message:contents,duration: duration});
 }
