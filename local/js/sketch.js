@@ -336,7 +336,7 @@ function draw() {
       fill(255);
       textAlign(LEFT);
       textSize(TEXT_SIZE);
-      text(alert.message);
+      text(alert.message,width*0.5,height*0.8);
       pop();
       console.log(alert.message);
       alert.duration -= delta;
