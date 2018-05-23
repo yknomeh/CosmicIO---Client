@@ -13,8 +13,8 @@ const SERVER_BEAT = 10; /* refreshing per ms */
 const RENDER_SIZE = 5; /* size of dust rendering */
 const AMOUNT_OF_DUST = 500; /* amount of dust */
 
-const HUB_TIME = 1; /* lobby/hub time */
-const GAME_TIME = 5; /* game time */
+const HUB_TIME = 0.1; /* lobby/hub time */
+const GAME_TIME = 0.15; /* game time */
 /* END of CONFIG */
 
 let ships = [];
@@ -291,7 +291,7 @@ io.sockets.on('connection', (socket) => {
     let ship = ships[findShip(socket.id)];
     ship.score += data;
     ship.size ++;
-    ship.health *= 1.1;
+    ship.health = Math.floor(ship.health * 1.05)
   })
 
   socket.on('message', (data) => {
@@ -313,6 +313,10 @@ io.sockets.on('connection', (socket) => {
 
     console.log('\n================')
   })
+  function alert(contents,duration)
+  {
+      socket.emit('alert',infoAlert={message:contents,duration: duration});
+  }
 })
 
 
@@ -320,9 +324,4 @@ for (let i = 0; i < AMOUNT_OF_DUST; i++) {
   let x = Math.random() * (500 * RENDER_SIZE - -500 * RENDER_SIZE) + -500 * RENDER_SIZE;
   let y = Math.random() * (500 * RENDER_SIZE - -500 * RENDER_SIZE) + -500 * RENDER_SIZE;
   dust[i] = new Dust(15, x, y);
-}
-
-function alert(contents,duration)
-{
-    socket.emit('alert',infoAlert={message:contents,duration: duration});
 }
