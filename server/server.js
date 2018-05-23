@@ -79,7 +79,7 @@ function startGame() {
       hub: false,
       gate: false
     }
-    console.log('\n\n-=GAME HAS STARTED=-')
+    console.log('Game started'.green)
     gameTime(GAME_TIME).then(() => {
       disconnectALL = true;
     })
