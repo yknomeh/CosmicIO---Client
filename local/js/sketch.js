@@ -34,13 +34,19 @@ let _canPlay = true;
 
 let _debugger = false;
 
+let skinImg;
+
+function preload() {
+  skinImg = loadImage('./images/skins/skin.png')
+}
+
 function setup() {
   createCanvas(
     window.innerWidth,
     window.innerHeight
   );
 
-  ship = new Ship(60, 0, 0, RENDER_SIZE);
+  ship = new Ship(60, 0, 0, RENDER_SIZE, skinImg);
 
   // Connection
   socket = io.connect('http://' + window.location.hostname + ':3000');
@@ -55,9 +61,8 @@ function setup() {
     window.location.reload();
   });
 
-  socket.on('alert',function(alertdata)
-  {
-    alert=alertdata;
+  socket.on('alert', function (alertdata) {
+    alert = alertdata;
   })
 
   let shipData = {
@@ -116,8 +121,9 @@ function setup() {
   });
 
   usrInput = createInput();
-  
+
 }
+
 
 function draw() {
   background(0);
@@ -130,7 +136,7 @@ function draw() {
   usrInput.position(width * 0.35, height / 2.3);
   usrInput.class('hub');
   pop();
-  var delta = 1/frameRate();
+  var delta = 1 / frameRate();
   // TIMER
   if (_hub) {
     $('.hub').show();
@@ -330,13 +336,12 @@ function draw() {
     }
 
     //Alert
-    if(alert.duration>0)
-    {
+    if (alert.duration > 0) {
       push();
       fill(255);
       textAlign(LEFT);
       textSize(TEXT_SIZE);
-      text(alert.message,width*0.5,height*0.8);
+      text(alert.message, width * 0.5, height * 0.8);
       pop();
       console.log(alert.message);
       alert.duration -= delta;
@@ -372,7 +377,7 @@ function keyPressed() {
     // On Press 'Enter'
     if (_hub && usrInput.value().length < 18) {
       username = usrInput.value();
-    } else if(usrInput.value().length >= 18) {
+    } else if (usrInput.value().length >= 18) {
       username = "Too long bruh";
     }
   }

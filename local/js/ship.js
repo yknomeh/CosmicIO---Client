@@ -1,5 +1,5 @@
 class Ship {
-  constructor(s, w, h, renderSize) {
+  constructor(s, w, h, renderSize, skin) {
     this.pos = createVector(w, h);
     this.size = s;
     this.v = createVector(0, 0);
@@ -13,25 +13,31 @@ class Ship {
     this.renderSize = renderSize;
 
     this.health = 100;
-  }
 
+    this.testSprite = createSprite(0, 0);
+    this.skinImg = skin;
+  }
+  
   render() {
     push();
+    
     translate(this.pos.x, this.pos.y);
     rotate(this.heading);
     fill(0);
     stroke(255);
 
-    beginShape();
-    vertex(-2 / 3 * this.size, -this.size);
+    this.testSprite.addImage(this.skinImg)
+    drawSprites();
+    // beginShape();
+    // vertex(-2 / 3 * this.size, -this.size);
 
-    vertex(4 / 3 * this.size, 0);
+    // vertex(4 / 3 * this.size, 0);
 
-    vertex(-2 / 3 * this.size, this.size);
+    // vertex(-2 / 3 * this.size, this.size);
 
-    vertex(0 / 3 * this.size, 0);
-    vertex(-2 / 3 * this.size, -this.size);
-    endShape();
+    // vertex(0 / 3 * this.size, 0);
+    // vertex(-2 / 3 * this.size, -this.size);
+    // endShape();
     pop();
   }
 
