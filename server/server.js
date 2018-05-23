@@ -1,3 +1,5 @@
+//Imports
+
 const express = require('express')
 const socket = require('socket.io')
 const app = express()
@@ -209,7 +211,7 @@ io.sockets.on('connection', (socket) => {
   let old_size;
   let playerShip;
 
-  alert('elo',5);
+  socket.emit('alert',infoAlert={message:'elo',duration: '10'});
 
   socket.on('update', (shipData) => {
 
