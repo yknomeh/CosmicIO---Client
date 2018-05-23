@@ -6,4 +6,6 @@ const AMOUNT_OF_DUST = 500; /* amount of dust */
 
 const HUB_TIME = 0.1; /* lobby/hub time */
 const GAME_TIME = 0.15; /* game time */
+const STARTING_HP=100;
+const SPEED = 5;
 /* END of CONFIG */

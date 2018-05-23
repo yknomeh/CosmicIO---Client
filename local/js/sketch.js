@@ -161,6 +161,12 @@ function draw() {
     text('USERNAME', width / 2, height / 2.5);
     pop();
 
+    push();
+    fill(255);
+    textAlign(CENTER);
+    textSize(75);
+    text("Cosmic.IO",width*0.5,height*0.265);
+    pop();
   } else if (_canPlay) {
     $('.hub').hide();
 
