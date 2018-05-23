@@ -6,6 +6,7 @@ const app = express()
 
 const server = app.listen(3000)
 const io = socket(server)
+const colors = require('colors')
 
 /* CONFIG */
 const SERVER_BEAT = 10; /* refreshing per ms */
@@ -14,7 +15,7 @@ const RENDER_SIZE = 5; /* size of dust rendering */
 const AMOUNT_OF_DUST = 500; /* amount of dust */
 
 const HUB_TIME = 0.1; /* lobby/hub time */
-const GAME_TIME = 0.15; /* game time */
+const GAME_TIME = 1.0; /* game time */
 /* END of CONFIG */
 
 let ships = [];
@@ -59,7 +60,7 @@ let countDown = (duration) => {
 
 function hubGame(t) {
   return new Promise(resolve => {
-    console.log('\n\n-=NEW GAME=-')
+    console.log('Lobby started'.green)
     countDown(60 * t)
     setTimeout(resolve, t * 1000 * 60)
   });
@@ -67,6 +68,7 @@ function hubGame(t) {
 
 function gameTime(t) {
   return new Promise(resolve => {
+    console.log('Game stared'.green)
     countDown(60 * t)
     setTimeout(resolve, t * 1000 * 60)
   });
@@ -82,6 +84,7 @@ function startGame() {
     console.log('Game started'.green)
     gameTime(GAME_TIME).then(() => {
       disconnectALL = true;
+
     })
   })
 }
