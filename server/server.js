@@ -16,7 +16,6 @@ const AMOUNT_OF_DUST = 500; /* amount of dust */
 
 const HUB_TIME = 0.1; /* lobby/hub time */
 const GAME_TIME = 1; /* game time */
-const GAME_TIME = 1.0; /* game time */
 /* END of CONFIG */
 
 let ships = [];
