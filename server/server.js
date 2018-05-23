@@ -15,11 +15,8 @@ const RENDER_SIZE = 5; /* size of dust rendering */
 const AMOUNT_OF_DUST = 500; /* amount of dust */
 
 const HUB_TIME = 0.1; /* lobby/hub time */
-<<<<<<< HEAD
 const GAME_TIME = 1; /* game time */
-=======
 const GAME_TIME = 1.0; /* game time */
->>>>>>> master
 /* END of CONFIG */
 
 let ships = [];
