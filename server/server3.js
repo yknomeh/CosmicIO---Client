@@ -32,7 +32,7 @@ function game()
         currentPlayers++;
         let playerShip = {
             id:currentPlayers,
-            transform: new p2.Body({mass: 5,position: [0,0]}).addShape(p2.Circle{radius:5}),
+            transform: new p2.Body({mass: 5,position: [0,0]}).addShape(p2.Circle,{radius:5}),
             heading:0,
             health:config.STARTING_HP,
             username:'',
@@ -59,7 +59,7 @@ function game()
     setInterval(function() {
         //Delta time calc
         var currentTime = (new Date()).getTime();
-        var timeDifference = currentTime - lastUpdateTime;
+        var deltaTime = currentTime - lastUpdateTime;
         update(deltaTime);
         lastUpdateTime = currentTime;
       },
@@ -69,7 +69,7 @@ function game()
     setInterval(function(){
  
         // The step method moves the bodies forward in time.
-        world.step(timeStep);
+        world.step(1000/50);
 
      
     }, 1000/50);
