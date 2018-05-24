@@ -36,6 +36,16 @@ let _debugger = false;
 
 let skinImg;
 
+
+//Nowe
+let ui = {
+   title:'Cosmic.IO - Lobby',
+   lobby:true,
+   time:999
+}
+
+let movement = {left:false,right:false,up:false,down:false};
+
 function preload() {
   skinImg = loadImage('./images/skins/skin.png')
 }
@@ -57,6 +67,51 @@ function setup() {
     });
   });
 
+  //UI update
+  socket.on('ui',function(data)
+  {
+    ui=data;
+    document.title = ui.title;
+    console.log(ui);
+    draw();
+  });
+
+  //Keys
+  document.addEventListener('keydown', function(event) {
+    switch (event.keyCode) {
+      case 65: // A
+        movement.left = true;
+        break;
+      case 87: // W
+        movement.up = true;
+        break;
+      case 68: // D
+        movement.right = true;
+        break;
+      case 83: // S
+        movement.down = true;
+        break;
+    }
+    socket.emit('movement',movement);
+  });
+  document.addEventListener('keyup', function(event) {
+    switch (event.keyCode) {
+      case 65: // A
+        movement.left = false;
+        break;
+      case 87: // W
+        movement.up = false;
+        break;
+      case 68: // D
+        movement.right = false;
+        break;
+      case 83: // S
+        movement.down = false;
+        break;
+    }
+    socket.emit('movement',movement);
+  });
+
   socket.on('disconnect', function () {
     window.location.reload();
   });
@@ -64,6 +119,7 @@ function setup() {
   socket.on('alert', function (alertdata) {
     alert = alertdata;
   })
+
 
   let shipData = {
     x: ship.pos.x,
@@ -85,7 +141,7 @@ function setup() {
     });
   });
 
-  socket.on('cosmicdust', (data) => {
+  socket.on('cosmicDust', (data) => {
     if (dust.length != data.length) {
       dust = [];
       for (let i = 0; i < data.length; i++) {
@@ -138,13 +194,13 @@ function draw() {
   pop();
   var delta = 1 / frameRate();
   // TIMER
-  if (_hub) {
+  if (ui.lobby) {
     $('.hub').show();
     push();
     fill(255);
     textAlign(CENTER);
     textSize(TEXT_SIZE * 1.5);
-    text('Preparing game\n' + timer, width / 2, 40);
+    text('Preparing game\n' + ui.time + ' seconds left', width / 2, 40);
 
     // Hello
     if (username != " " || username != "") {
@@ -176,7 +232,7 @@ function draw() {
     fill(255);
     textAlign(CENTER);
     textSize(TEXT_SIZE * 1.5);
-    text(timer, width / 2, 40);
+    text(Math.floor(ui.time), width / 2, 40);
 
     // SCORE
     textAlign(LEFT);
@@ -283,6 +339,7 @@ function draw() {
         socket.emit('update', shipData);
       }
     }
+    ui.time-=delta;
   } else {
     $('.hub').hide();
 
