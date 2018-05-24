@@ -15,7 +15,10 @@ let classes = require('./classes')
 //Variables
 let ships = [];
 let currentPlayers = 0;
-let world = new p2.World({gravity : [0, 0]}).defaultContactMaterial.friction = 0;
+let world = new p2.World({gravity : [0, 0]});world.defaultContactMaterial.friction = 0;
+let time = LOBBY_TIME;
+let lobby = true;
+let dust = [];
 
 console.log("Cosmic.io server. All right reserved");
 app.use(express.static("local"));
@@ -32,27 +35,37 @@ function game()
         currentPlayers++;
         let playerShip = {
             id:currentPlayers,
-            transform: new p2.Body({mass: 5,position: [0,0]}).addShape(p2.Circle,{radius:5}),
+            transform: new p2.Body({mass: 5,position: [2,4]}),
             heading:0,
-            health:config.STARTING_HP,
+            health:STARTING_HP,
             username:'',
             score:0,
             sockId:sock.id,
             movement:{left:false,right:false,up:false,down:false}
         };
-        world.addBody(playerShip.transform);
+        try{
+            playerShip.transform.addShape(p2.Circle,{radius:5});
+            world.addBody(playerShip.transform);
+        }
+        catch(E)
+        {}
         ships.push(playerShip);
-        io.to(playerShip.sockId).emit('playable',true);
+        syncUI();
+        if(!lobby)io.sockets.to(playerShip.id).emit('cosmicDust', dust);
     });
 
     //Movement
     io.sockets.on('movement',function(sock)
     {
         shipBySocketId(sock.id).movement = sock;
+        console.log(sock);
     });
 
-    //Enter game
-    //io.sockets.on("enterGame");
+    //Username
+    io.sockets.on("username",function(sock)
+    {
+        shipBySocketId(sock.id).username = sock;
+    });
 
     //Server loop
     var lastUpdateTime = (new Date()).getTime();
@@ -60,19 +73,25 @@ function game()
         //Delta time calc
         var currentTime = (new Date()).getTime();
         var deltaTime = currentTime - lastUpdateTime;
-        update(deltaTime);
+        update(deltaTime/1000);
         lastUpdateTime = currentTime;
       },
-      config.SERVER_BEAT);
+      SERVER_BEAT);
 
     //Physics loop
     setInterval(function(){
  
         // The step method moves the bodies forward in time.
-        world.step(1000/50);
+        world.step(1000/50,1000/50,5);
 
-     
     }, 1000/50);
+    
+    //Server sync loops
+    setInterval(function(){
+        syncUI();
+    }, 1000);
+
+    console.log("Server Ready!".green);
 }
 
 function shipBySocketId(sockId)
@@ -87,6 +106,28 @@ function shipBySocketId(sockId)
 function update(deltaTime)
 {
     updatePosition(deltaTime);
+    updateTime(deltaTime);
+}
+
+function updateTime(deltaTime)
+{
+    time-=deltaTime;
+    if(time<0)
+    {
+        if(lobby)
+        {
+            time=GAME_TIME;
+            lobby=!lobby;
+            generateDust();
+            console.log("Game started".yellow)
+        }
+        else
+        {
+            time=LOBBY_TIME;
+            lobby=!lobby;
+            console.log("Game ended".yellow)
+        }
+    }
 }
 
 function updatePosition(deltaTime)
@@ -97,4 +138,20 @@ function updatePosition(deltaTime)
         if(ships[i].movement.left)ships[i].transform.angularVelocity = deltaTime * -10;
         if(ships[i].movement.right)ships[i].transform.angularVelocity = deltaTime * 10;
     }
+}
+
+function generateDust()
+{
+    for (let i = 0; i < AMOUNT_OF_DUST; i++) {
+        let x = Math.random() * (500 * RENDER_SIZE - -500 * RENDER_SIZE) + -500 * RENDER_SIZE;
+        let y = Math.random() * (500 * RENDER_SIZE - -500 * RENDER_SIZE) + -500 * RENDER_SIZE;
+        dust[i] = {size:15,x:x,y:y};
+    
+    io.sockets.emit('cosmicDust', dust)}    
+}
+
+//Sync functions
+function syncUI()
+{
+    io.emit('ui',{title:'Cosmic.IO - Lobby', lobby:lobby,time:Math.floor(time)});
 }

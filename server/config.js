@@ -1,11 +1,11 @@
 /* CONFIG */
-const SERVER_BEAT = 10; /* refreshing per ms */
+global.SERVER_BEAT = 0.1; /* refreshing per ms */
+global.RENDER_SIZE = 5; /* size of dust rendering */
+global.AMOUNT_OF_DUST = 500; /* amount of dust */
 
-const RENDER_SIZE = 5; /* size of dust rendering */
-const AMOUNT_OF_DUST = 500; /* amount of dust */
+global.LOBBY_TIME = 6; /* lobby/hub time */
+global.GAME_TIME = 18; /* game time */
+global.STARTING_HP=100;
+global.SPEED = 5;
 
-const HUB_TIME = 0.1; /* lobby/hub time */
-const GAME_TIME = 0.15; /* game time */
-const STARTING_HP=100;
-const SPEED = 5;
 /* END of CONFIG */
