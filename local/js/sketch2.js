@@ -36,6 +36,8 @@ let _debugger = false;
 
 let skinImg;
 
+let isHelpShowed = false
+
 function preload() {
   skinImg = loadImage('./images/skins/skin.png')
 }
@@ -165,7 +167,7 @@ function draw() {
     fill(255);
     textAlign(CENTER);
     textSize(75);
-    text("Cosmic.IO",width*0.5,height*0.265);
+    text("Cosmic.IO", width * 0.5, height * 0.265);
     pop();
   } else if (_canPlay) {
     $('.hub').hide();
@@ -198,6 +200,27 @@ function draw() {
       text(messageboard[i].message, 10, height / 2 + -i * 20);
     }
 
+    push()
+    textAlign(CENTER)
+    textSize(TEXT_SIZE)
+    text("Press \"H\" to show help", width / 2, height - 10)
+    pop()
+
+    if (isHelpShowed) {
+      push()
+      noFill()
+      stroke(255)
+      strokeWeight(4)
+      rect(10, height / 3, 300, 160)
+      pop()
+      push()
+      fill(255)
+      textAlign(LEFT)
+      text("W,A,S,D - Movement", 20, height / 3 + 25)
+      text("E - Turn on/off engine", 20, height / 3 + 50)
+      text("Shift - Boost", 20, height / 3 + 75)
+      pop()   
+    }
     pop();
 
     translate(width / 2, height / 2);
@@ -283,6 +306,7 @@ function draw() {
         socket.emit('update', shipData);
       }
     }
+
   } else {
     $('.hub').hide();
 
@@ -348,10 +372,12 @@ function draw() {
       textAlign(LEFT);
       textSize(TEXT_SIZE);
       text(alert.message, width * 0.5, height * 0.8);
+
       pop();
       console.log(alert.message);
       alert.duration -= delta;
     }
+
 
   }
 }
@@ -386,6 +412,8 @@ function keyPressed() {
     } else if (usrInput.value().length >= 18) {
       username = "Too long bruh";
     }
+  } else if (keyCode == 72) {
+    isHelpShowed = isHelpShowed == true ? false : true
   }
 
 }
