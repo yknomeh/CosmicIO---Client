@@ -36,15 +36,18 @@ let _debugger = false;
 
 let skinImg;
 
+let isHelpShowed = false
+
+let skinChangerGui;
 
 //Nowe
 let ui = {
-   title:'Cosmic.IO - Lobby',
-   lobby:true,
-   time:999
+  title: 'Cosmic.IO - Lobby',
+  lobby: true,
+  time: 999
 }
 
-let movement = {left:false,right:false,up:false,down:false};
+let movement = { left: false, right: false, up: false, down: false };
 
 function preload() {
   skinImg = loadImage('./images/skins/skin.png')
@@ -68,48 +71,11 @@ function setup() {
   });
 
   //UI update
-  socket.on('ui',function(data)
-  {
-    ui=data;
+  socket.on('ui', function (data) {
+    ui = data;
     document.title = ui.title;
     console.log(ui);
     draw();
-  });
-
-  //Keys
-  document.addEventListener('keydown', function(event) {
-    switch (event.keyCode) {
-      case 65: // A
-        movement.left = true;
-        break;
-      case 87: // W
-        movement.up = true;
-        break;
-      case 68: // D
-        movement.right = true;
-        break;
-      case 83: // S
-        movement.down = true;
-        break;
-    }
-    socket.emit('movement',movement);
-  });
-  document.addEventListener('keyup', function(event) {
-    switch (event.keyCode) {
-      case 65: // A
-        movement.left = false;
-        break;
-      case 87: // W
-        movement.up = false;
-        break;
-      case 68: // D
-        movement.right = false;
-        break;
-      case 83: // S
-        movement.down = false;
-        break;
-    }
-    socket.emit('movement',movement);
   });
 
   socket.on('disconnect', function () {
@@ -178,24 +144,27 @@ function setup() {
 
   usrInput = createInput();
 
+  skinChangerGui = createGui("Select skin")
+
 }
 
 
 function draw() {
   background(0);
-
+  
   if (_debugger) {
     console.log('SHIP: { x: ' + ship.pos.x + ' y: ' + ship.pos.y + " }");
   }
-
+  
   push();
   usrInput.position(width * 0.35, height / 2.3);
   usrInput.class('hub');
   pop();
-  var delta = 1 / frameRate();
+  let delta = 1 / frameRate();
   // TIMER
   if (ui.lobby) {
     $('.hub').show();
+    skinChangerGui.show()
     push();
     fill(255);
     textAlign(CENTER);
@@ -221,10 +190,12 @@ function draw() {
     fill(255);
     textAlign(CENTER);
     textSize(75);
-    text("Cosmic.IO",width*0.5,height*0.265);
+    text("Cosmic.IO", width * 0.5, height * 0.265);
     pop();
+
   } else if (_canPlay) {
     $('.hub').hide();
+    skinChangerGui.hide()
 
     push();
 
@@ -232,7 +203,7 @@ function draw() {
     fill(255);
     textAlign(CENTER);
     textSize(TEXT_SIZE * 1.5);
-    text(Math.floor(ui.time), width / 2, 40);
+    text(Math.floor(ui.time) <= -1 ? 0 : Math.floor(ui.time), width / 2, 40);
 
     // SCORE
     textAlign(LEFT);
@@ -252,6 +223,28 @@ function draw() {
       textAlign(LEFT);
       textSize(TEXT_SIZE);
       text(messageboard[i].message, 10, height / 2 + -i * 20);
+    }
+
+    push()
+    textAlign(CENTER)
+    textSize(TEXT_SIZE)
+    text("Press \"H\" to show help", width / 2, height - 10)
+    pop()
+
+    if (isHelpShowed) {
+      push()
+      noFill()
+      stroke(255)
+      strokeWeight(4)
+      rect(10, height / 3, 300, 160)
+      pop()
+      push()
+      fill(255)
+      textAlign(LEFT)
+      text("W,A,S,D - Movement", 20, height / 3 + 25)
+      text("E - Turn on/off engine", 20, height / 3 + 50)
+      text("Shift - Boost", 20, height / 3 + 75)
+      pop()
     }
 
     pop();
@@ -339,7 +332,7 @@ function draw() {
         socket.emit('update', shipData);
       }
     }
-    ui.time-=delta;
+    ui.time -= delta;
   } else {
     $('.hub').hide();
 
@@ -415,10 +408,13 @@ function draw() {
 
 function keyPressed() {
   if (keyCode == RIGHT_ARROW || keyCode == 68) {
+    movement.right = true;
     ship.rotation = 0.1;
   } else if (keyCode == LEFT_ARROW || keyCode == 65) {
+    movement.left = true;
     ship.rotation = -0.1;
   } else if (keyCode == UP_ARROW || keyCode == 87) {
+    movement.up = true;
     ship.engineWorking(true);
   } else if (keyCode == 69) {
     // On Press 'E'
@@ -443,16 +439,22 @@ function keyPressed() {
     } else if (usrInput.value().length >= 18) {
       username = "Too long bruh";
     }
+  } else if (keyCode == 72) {
+    // Help
+    isHelpShowed = isHelpShowed == true ? false : true
   }
-
+  socket.emit('movement', movement);
 }
 
 function keyReleased() {
   if (keyCode == UP_ARROW || keyCode == 87) {
+    movement.up = false;
     ship.engineWorking(false);
   } else if (keyCode == RIGHT_ARROW || keyCode == 68) {
+    movement.right = false;
     ship.rotation = 0;
   } else if (keyCode == LEFT_ARROW || keyCode == 65) {
+    movement.left = false;
     ship.rotation = 0;
   } else if (keyCode == 16) {
     // On Release 'Shift'
@@ -460,4 +462,5 @@ function keyReleased() {
   } else if (keyCode == 32) {
     // On Release 'Space'
   }
+  socket.emit('movement', movement);
 }

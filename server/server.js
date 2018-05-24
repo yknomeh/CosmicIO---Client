@@ -91,7 +91,7 @@ function startGame() {
 
 function findShip(id) {
 
-  for (var i = 0; i < ships.length; i++) {
+  for (let i = 0; i < ships.length; i++) {
       if (ships[i].id == id) {
           return i;
       }
