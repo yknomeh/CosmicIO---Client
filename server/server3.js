@@ -139,10 +139,22 @@ function generateDust() {
     for (let i = 0; i < AMOUNT_OF_DUST; i++) {
         let x = Math.random() * (500 * RENDER_SIZE - -500 * RENDER_SIZE) + -500 * RENDER_SIZE;
         let y = Math.random() * (500 * RENDER_SIZE - -500 * RENDER_SIZE) + -500 * RENDER_SIZE;
-        dust[i] = { size: 15, x: x, y: y };
-
-        io.sockets.emit('cosmicDust', dust)
+        let transform = new p2.Body({ mass: 0, position: [x, y] });
+        transform.addShape(new p2.Circle({radius:RENDER_SIZE}));
+        transform.sensor=true;
+        transform.motionState = p2.Body.STATIC;
+        dust[i] = { size: 15, transform:transform};
+        world.addBody(dust[i].transform);
     }
+    let clientDust = [];
+    foreach(dust,function (object, key, array) {
+        clientDust[key] = {
+            size: object.size,
+            x: object.transform.position[0],
+            y: object.transform.position[1]
+        }
+    });
+    io.sockets.emit('cosmicDust',clientDust)
 }
 
 //Sync functions
