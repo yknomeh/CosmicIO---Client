@@ -81,7 +81,7 @@ function game() {
     //Server sync loops
     setInterval(() => {
         syncUI();
-    }, 1000);
+    },SYNC_UI);
 
     console.log("Server Ready!".green);
 }
