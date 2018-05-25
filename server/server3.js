@@ -40,6 +40,7 @@ function game() {
             username: '',
             score: 0,
             sockId: sock.id,
+            alive: true,
             movement: { left: false, right: false, up: false, down: false }
         };
         playerShip.transform.addShape(new p2.Circle({ radius: 5 }));
@@ -148,17 +149,20 @@ function syncShips()
 {
     let shipData=[];
     foreach(ships,function (ship, key, array) {
-        let prepared =
+        if(ship.alive)
         {
-            x: ship.transform.position[0],
-            y: ship.transform.position[1],
-            heading: ship.transform.angle,
-            health: ship.health,
-            username: ship.username,
-            score: ship.score,
-            sockId: ship.sockId
+            let prepared =
+            {
+                x: ship.transform.position[0],
+                y: ship.transform.position[1],
+                heading: ship.transform.angle,
+                health: ship.health,
+                username: ship.username,
+                score: ship.score,
+                sockId: ship.sockId
+            }
+            shipData[key]=prepared;
         }
-        shipData[key]=prepared;
     });
     io.emit('ships',shipData);
 }
