@@ -98,7 +98,12 @@ function setup() {
   }
 
   socket.emit('start', shipData);
-
+  socket.on('ships',(data) =>
+  {
+    console.log(data);
+    shipData.x=data[0];
+    shipData.y=data[1];
+  });
   socket.on('hjerteslag', (data) => {
     ships = data;
     leaderboard = data;

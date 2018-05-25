@@ -2,7 +2,7 @@
   "name": "cosmicio",
   "version": "1.0.0",
   "description": "Cosmic IO is... another IO game.",
-  "main": "./server/server.js",
+  "main": "./server/server3.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -16,8 +16,8 @@
     "IO",
     "space"
   ],
-  "author": "Mikolaj 'yknomeh' Radkowski",
-  "license": "ISC",
+  "author": "Mikolaj 'yknomeh' Radkowski, Jakub 'kubastick' Tomana",
+  "license": "All rights reserved/Beerware",
   "bugs": {
     "url": "https://github.com/YaKnowMe/CosmicIO/issues"
   },
@@ -25,6 +25,7 @@
   "dependencies": {
     "colors": "^1.3.0",
     "express": "^4.16.2",
+    "foreach": "^2.0.5",
     "p2": "^0.7.1",
     "socket.io": "^2.0.4"
   }

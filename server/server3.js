@@ -6,6 +6,7 @@ const server = app.listen(3000)
 const io = socket(server)
 const colors = require('colors')
 const p2 = require('p2')
+const foreach = require('foreach')
 //Config file
 let config = require('./config')
 
@@ -41,11 +42,8 @@ function game() {
             sockId: sock.id,
             movement: { left: false, right: false, up: false, down: false }
         };
-        try {
-            playerShip.transform.addShape(p2.Circle, { radius: 5 });
-            world.addBody(playerShip.transform);
-        }
-        catch (E) { }
+        playerShip.transform.addShape(new p2.Circle({ radius: 5 }));
+        world.addBody(playerShip.transform);
         ships.push(playerShip);
         syncUI();
         if (!lobby) io.sockets.to(playerShip.id).emit('cosmicDust', dust);
@@ -54,6 +52,7 @@ function game() {
         sock.on('movement', (data) => {
             // console.log(ships[0].movement);
             shipBySocketId(sock.id).movement = data;
+            console.log(data);
         });
 
         //Username
@@ -71,16 +70,15 @@ function game() {
         let deltaTime = currentTime - lastUpdateTime;
         update(deltaTime / 1000);
         lastUpdateTime = currentTime;
-    },
-        SERVER_BEAT);
+    },SERVER_BEAT);
 
     //Physics loop
     setInterval(() => {
 
         // The step method moves the bodies forward in time.
-        world.step(1000 / 50, 1000 / 50, 5);
+        world.step(PHYSICS_TIMESTEP,PHYSICS_TIMESTEP, 5);
 
-    }, 1000 / 50);
+    },PHYSICS_TIMESTEP);
 
     //Server sync loops
     setInterval(() => {
@@ -99,7 +97,11 @@ function shipBySocketId(sockId) {
 }
 
 function update(deltaTime) {
-    updatePosition(deltaTime);
+    if(!lobby)
+    {
+        updatePosition(deltaTime);
+        syncShips();
+    }
     updateTime(deltaTime);
 }
 
@@ -122,8 +124,8 @@ function updateTime(deltaTime) {
 
 function updatePosition(deltaTime) {
     for (let i = 0; i < ships.length; i++) {
-        if (ships[i].movement.up) ships[i].transform.applyForceLocal([0, 120 * deltaTime]);
-        if (ships[i].movement.down) ships[i].transform.applyForceLocal([0, 120 * deltaTime * -1]);
+        if (ships[i].movement.up) ships[i].transform.applyForceLocal([0, 5 * deltaTime]);
+        if (ships[i].movement.down) ships[i].transform.applyForceLocal([0, 5 * deltaTime * -1]);
         if (ships[i].movement.left) ships[i].transform.angularVelocity = deltaTime * -10;
         if (ships[i].movement.right) ships[i].transform.angularVelocity = deltaTime * 10;
     }
@@ -142,4 +144,9 @@ function generateDust() {
 //Sync functions
 function syncUI() {
     io.emit('ui', { title: 'Cosmic.IO - Lobby', lobby: lobby, time: Math.floor(time) });
+}
+
+function syncShips()
+{
+    io.emit('ships',ships[0].transform.position);
 }
