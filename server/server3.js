@@ -40,6 +40,7 @@ function game() {
             username: '',
             score: 0,
             sockId: sock.id,
+            alive: true,
             movement: { left: false, right: false, up: false, down: false }
         };
         playerShip.transform.addShape(new p2.Circle({ radius: 5 }));
@@ -57,6 +58,11 @@ function game() {
         sock.on("username", (data) => {
             shipBySocketId(sock.id).username = data;
         });
+
+        sock.on('disconnect', (data) => {
+            ships.pop(shipBySocketId(sock.id));
+            console.log('Player disconnected:' + sock.id);
+        });
     });
 
 
@@ -68,15 +74,15 @@ function game() {
         let deltaTime = currentTime - lastUpdateTime;
         update(deltaTime / 1000);
         lastUpdateTime = currentTime;
-    },SERVER_BEAT);
+    }, SERVER_BEAT);
 
     //Physics loop
     setInterval(() => {
 
         // The step method moves the bodies forward in time.
-        world.step(PHYSICS_TIMESTEP,PHYSICS_TIMESTEP, 5);
+        world.step(PHYSICS_TIMESTEP, PHYSICS_TIMESTEP, 5);
 
-    },PHYSICS_TIMESTEP);
+    }, PHYSICS_TIMESTEP);
 
     //Server sync loops
     setInterval(() => {
@@ -95,8 +101,7 @@ function shipBySocketId(sockId) {
 }
 
 function update(deltaTime) {
-    if(!lobby)
-    {
+    if (!lobby) {
         updatePosition(deltaTime);
         syncShips();
     }
@@ -133,10 +138,22 @@ function generateDust() {
     for (let i = 0; i < AMOUNT_OF_DUST; i++) {
         let x = Math.random() * (500 * RENDER_SIZE - -500 * RENDER_SIZE) + -500 * RENDER_SIZE;
         let y = Math.random() * (500 * RENDER_SIZE - -500 * RENDER_SIZE) + -500 * RENDER_SIZE;
-        dust[i] = { size: 15, x: x, y: y };
-
-        io.sockets.emit('cosmicDust', dust)
+        let transform = new p2.Body({ mass: 0, position: [x, y] });
+        transform.addShape(new p2.Circle({radius:RENDER_SIZE}));
+        transform.sensor=true;
+        transform.motionState = p2.Body.STATIC;
+        dust[i] = { size: 15, transform:transform};
+        world.addBody(dust[i].transform);
     }
+    let clientDust = [];
+    foreach(dust, (object, key, array) => {
+        clientDust[key] = {
+            size: object.size,
+            x: object.transform.position[0],
+            y: object.transform.position[1]
+        }
+    });
+    io.sockets.emit('cosmicDust', clientDust)
 }
 
 //Sync functions
@@ -144,21 +161,20 @@ function syncUI() {
     io.emit('ui', { title: 'Cosmic.IO - Lobby', lobby: lobby, time: Math.floor(time) });
 }
 
-function syncShips()
-{
-    let shipData=[];
-    foreach(ships,function (ship, key, array) {
-        let prepared =
-        {
+function syncShips() {
+    let shipData = [];
+    foreach(ships, (ship, key, array) => {
+        let prepared = {
             x: ship.transform.position[0],
             y: ship.transform.position[1],
             heading: ship.transform.angle,
             health: ship.health,
             username: ship.username,
             score: ship.score,
-            sockId: ship.sockId
+            sockId: ship.sockId,
+            skin: "skin.png"
         }
-        shipData[key]=prepared;
+        shipData[key] = prepared;
     });
-    io.emit('ships',shipData);
+    io.emit('ships', shipData);
 }
