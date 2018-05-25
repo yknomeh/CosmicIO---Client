@@ -11,4 +11,8 @@ global.SPEED = 5;
 global.PHYSICS_TIMESTEP = 1000/50; //Physics timestep
 
 global.SYNC_UI = 1000; //UI Sync time
+<<<<<<< HEAD
 /* END of CONFIG */ 
+=======
+/* END of CONFIG */
+>>>>>>> master

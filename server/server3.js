@@ -58,13 +58,22 @@ function game() {
         sock.on("username", (data) => {
             shipBySocketId(sock.id).username = data;
         });
+<<<<<<< HEAD
 
         sock.on('disconnect', (data) => {
             ships.pop(shipBySocketId(sock.id));
             console.log('Player disconnected:' + sock.id);
         });
     });
+=======
+>>>>>>> master
 
+        //Disconnect
+        sock.on('disconnect',(data)=>{
+            ships.pop(shipBySocketId(sock.id));
+            console.log('Player disconnected:'+sock.id);
+        });
+    });
 
     //Server loop
     let lastUpdateTime = (new Date()).getTime();
@@ -87,7 +96,7 @@ function game() {
     //Server sync loops
     setInterval(() => {
         syncUI();
-    }, 1000);
+    },SYNC_UI);
 
     console.log("Server Ready!".green);
 }
@@ -146,14 +155,22 @@ function generateDust() {
         world.addBody(dust[i].transform);
     }
     let clientDust = [];
+<<<<<<< HEAD
     foreach(dust, (object, key, array) => {
+=======
+    foreach(dust,function (object, key, array) {
+>>>>>>> master
         clientDust[key] = {
             size: object.size,
             x: object.transform.position[0],
             y: object.transform.position[1]
         }
     });
+<<<<<<< HEAD
     io.sockets.emit('cosmicDust', clientDust)
+=======
+    io.sockets.emit('cosmicDust',clientDust)
+>>>>>>> master
 }
 
 //Sync functions
@@ -161,6 +178,7 @@ function syncUI() {
     io.emit('ui', { title: 'Cosmic.IO - Lobby', lobby: lobby, time: Math.floor(time) });
 }
 
+<<<<<<< HEAD
 function syncShips() {
     let shipData = [];
     foreach(ships, (ship, key, array) => {
@@ -175,6 +193,26 @@ function syncShips() {
             skin: "skin.png"
         }
         shipData[key] = prepared;
+=======
+function syncShips()
+{
+    let shipData=[];
+    foreach(ships,function (ship, key, array) {
+        if(ship.alive)
+        {
+            let prepared =
+            {
+                x: ship.transform.position[0],
+                y: ship.transform.position[1],
+                heading: ship.transform.angle,
+                health: ship.health,
+                username: ship.username,
+                score: ship.score,
+                sockId: ship.sockId
+            }
+            shipData[key]=prepared;
+        }
+>>>>>>> master
     });
     io.emit('ships', shipData);
 }
