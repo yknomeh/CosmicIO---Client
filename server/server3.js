@@ -58,8 +58,13 @@ function game() {
         sock.on("username", (data) => {
             shipBySocketId(sock.id).username = data;
         });
-    });
 
+        //Disconnect
+        sock.on('disconnect',(data)=>{
+            ships.pop(shipBySocketId(sock.id));
+            console.log('Player disconnected:'+sock.id);
+        });
+    });
 
     //Server loop
     let lastUpdateTime = (new Date()).getTime();
