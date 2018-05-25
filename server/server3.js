@@ -50,9 +50,7 @@ function game() {
 
         //Movement
         sock.on('movement', (data) => {
-            // console.log(ships[0].movement);
             shipBySocketId(sock.id).movement = data;
-            console.log(data);
         });
 
         //Username
@@ -148,5 +146,19 @@ function syncUI() {
 
 function syncShips()
 {
-    io.emit('ships',ships[0].transform.position);
+    let shipData=[];
+    foreach(ships,function (ship, key, array) {
+        let prepared =
+        {
+            x: ship.transform.position[0],
+            y: ship.transform.position[1],
+            heading: ship.transform.angle,
+            health: ship.health,
+            username: ship.username,
+            score: ship.score,
+            sockId: ship.sockId
+        }
+        shipData[key]=prepared;
+    });
+    io.emit('ships',shipData);
 }

@@ -44,7 +44,8 @@ let skinChangerGui;
 let ui = {
   title: 'Cosmic.IO - Lobby',
   lobby: true,
-  time: 999
+  time: 999,
+  alert:{message: 'test2',duration: 1}
 }
 
 let movement = { left: false, right: false, up: false, down: false };
@@ -98,11 +99,16 @@ function setup() {
   }
 
   socket.emit('start', shipData);
-  socket.on('ships',(data) =>
+  socket.on('ships',function(ship)
   {
-    console.log(data);
-    shipData.x=data[0];
-    shipData.y=data[1];
+    for(x=0;x<ship.length;x++)
+    {
+      if(ship[x].sockId == socket.id)
+      {
+        console.log("This is mine ship bro");
+        //TODO:Specific ship rendering code goes here
+      }
+    }
   });
   socket.on('hjerteslag', (data) => {
     ships = data;
@@ -397,15 +403,14 @@ function draw() {
     }
 
     //Alert
-    if (alert.duration > 0) {
+    if (ui.alert.duration > 0) {
       push();
       fill(255);
       textAlign(LEFT);
       textSize(TEXT_SIZE);
-      text(alert.message, width * 0.5, height * 0.8);
+      text(ui.alert.message, width * 0.5, height * 0.8);
       pop();
-      console.log(alert.message);
-      alert.duration -= delta;
+      ui.alert.duration -= delta;
     }
 
   }
