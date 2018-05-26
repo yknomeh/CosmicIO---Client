@@ -43,13 +43,15 @@ function game() {
             score: 0,
             sockId: sock.id,
             alive: true,
-            movement: { left: false, right: false, up: false, down: false }
+            cooldown: 0,
+            skinId: null,
+            movement: { left: false, right: false, up: false, down: false, shoot: false }
         };
-        playerShip.transform.addShape(new p2.Box({ width: 80,height:240 }));
+        playerShip.transform.addShape(new p2.Box({ width: 80, height: 240 }));
         world.addBody(playerShip.transform);
         ships.push(playerShip);
         syncUI();
-        if (!lobby) io.sockets.to(playerShip.id).emit('cosmicDust',clientDust);
+        if (!lobby) sock.to(playerShip.id).emit('cosmicDust', clientDust);
 
         //Movement
         sock.on('movement', (data) => {
@@ -59,6 +61,11 @@ function game() {
         //Username
         sock.on("username", (data) => {
             shipBySocketId(sock.id).username = data;
+        });
+
+        //Skin
+        sock.on("skin", (data) => {
+            shipBySocketId(sock.id).skinId = data;
         });
 
         sock.on('disconnect', (data) => {
@@ -140,14 +147,14 @@ function generateDust() {
         let x = Math.random() * (500 * RENDER_SIZE - -500 * RENDER_SIZE) + -500 * RENDER_SIZE;
         let y = Math.random() * (500 * RENDER_SIZE - -500 * RENDER_SIZE) + -500 * RENDER_SIZE;
         let transform = new p2.Body({ mass: 0, position: [x, y] });
-        transform.addShape(new p2.Circle({ sensor:true,radius: RENDER_SIZE }));
+        transform.addShape(new p2.Circle({ sensor: true, radius: RENDER_SIZE }));
         transform.motionState = p2.Body.STATIC;
         dust[i] = { size: 15, transform: transform };
         world.addBody(dust[i].transform);
     }
     //Dust collision handling
-    world.on('beginContact',function(evt){
-        onDustCollect(evt.bodyA,evt.bodyB);
+    world.on('beginContact', (evt) => {
+        onDustCollect(evt.bodyA, evt.bodyB);
     });
 
     clientDust = [];
@@ -161,64 +168,81 @@ function generateDust() {
     io.sockets.emit('cosmicDust', clientDust)
 }
 
-function onDustCollect(body1,body2)
-{
+function onDustCollect(body1, body2) {
     //Try compare bodies, assuming 1st body is ship
-    try{
-        ships[findShipIdByTransform(body1)].score+=1;
+    try {
+        ships[findShipIdByTransform(body1)].score += 1;
         let index = findDustIdByTransform(body2);
         world.removeBody(dust[index].transform);
-        dust.splice(index,1);
+        dust.splice(index, 1);
         syncDustDelete(index);
     }
-    catch(e){
+    catch (e) {
         //Assuming 2nd body is ship
-        try
-        {
-            ships[findShipIdByTransform(body2)].score+=1;
+        try {
+            ships[findShipIdByTransform(body2)].score += 1;
             let index = findDustIdByTransform(body1);
             world.removeBody(dust[index].transform);
-            dust.splice(index,1);
+            dust.splice(index, 1);
             syncDustDelete(index);
         }
-        catch(E)
-        {
+        catch (E) {
+            //Assuming 1st budy is ship and 2nd laser
 
+            //Assuming 2nd body is ship and 1st laser
+            //Assuming that Nazim is gay
+            //Nazim is gay ~yknomeh
         }
     }
 }
 
-function shotlaser(x,y,heading)
-{
+function shotlaser(x, y, heading) {
     let laser = {
-            transform: new p2.Body({ 
-                mass: 5,
-                position: [x, y],
-                angle: heading
-            }),
+        transform: new p2.Body({
+            mass: 5,
+            position: [x, y],
+            angle: heading
+        }),
     };
-    laser.transform.addShape(new p2.Box({ width: 80,height:240 }));
+    laser.transform.addShape(new p2.Box({ width: 80, height: 240 }));
     laser.transform.applyForce([0, PHYSICS_LASER_FORCE * deltaTime]);
     lasers.push(laser);
 }
 
-function findShipIdByTransform(transform)
-{
+function findShipIdByTransform(transform) {
     for (let i = 0; i < ships.length; i++) {
-        if (ships[i].transform==transform)return i;
+        if (ships[i].transform == transform) return i;
+    }
+    throw "Zaraza! znowu nazima przechędożyło!";
+}
+
+function findDustIdByTransform(transform) {
+    for (let i = 0; i < dust.length; i++) {
+        if (dust[i].transform == transform) return i;
     }
     throw "Zaraza! znowu sie przechędożyło!";
 }
 
-function findDustIdByTransform(transform)
-{
-    for (let i = 0; i < dust.length; i++) {
-        if (dust[i].transform==transform)return i;
+function findLaserIdByTransform(transform) {
+    for (let i = 0; i < lasers.length; i++) {
+        if (laser[i].transform == transform) return i;
     }
-    throw "Zaraza! znowu sie przechędożyło!";
+    throw "Nazim is gay exception";
 }
 
 //Sync functions
+/*              __
+               / _)         
+        .-^^^-/ /          
+    __/       /              
+    <__.|_|-|_|  
+    
+      /\_/\
+    =( °w° )=
+      )   (  //
+     (__ __)//
+*/
+
 function syncUI() {
     io.emit('ui', { title: 'Cosmic.IO - Lobby', lobby: lobby, time: Math.floor(time) });
 }
@@ -234,14 +258,13 @@ function syncShips() {
             username: ship.username,
             score: ship.score,
             sockId: ship.sockId,
-            skin: "skin.png"
+            skinId: ship.skinId
         }
         shipData[key] = prepared;
     });
     io.emit('ships', shipData);
 }
 
-function syncDustDelete(i)
-{
-    io.emit('dustRemove',i);
+function syncDustDelete(i) {
+    io.emit('dustRemove', i);
 }

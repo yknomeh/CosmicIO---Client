@@ -44,12 +44,13 @@ let _canPlay = true;
 
 let _debugger = false;
 
-let skinImg;
+let skinImg = [];
 let sprites = []
 
 let isHelpShowed = false
 
 let skinChangerGui;
+let isSkinChangerOpened = false;
 
 let isSpritesLoaded = false;
 
@@ -65,7 +66,9 @@ let ui = {
 let movement = { left: false, right: false, up: false, down: false };
 
 function preload() {
-  skinImg = loadImage('./images/skins/skin.png')
+  for (let i = 0; i < 2; i++) {
+    skinImg[i] = loadImage('./images/skins/skin' + i + '.png')
+  }
 }
 
 function setup() {
@@ -89,7 +92,6 @@ function setup() {
   socket.on('ui', (data) => {
     ui = data;
     document.title = ui.title;
-    // console.log(ui);
     draw();
   });
 
@@ -101,26 +103,13 @@ function setup() {
     alert = alertdata;
   })
 
-  // socket.emit('start', shipData);
   socket.on('ships', (data_ship) => {
     for (let i = 0; i < data_ship.length; i++) {
       if (data_ship[i].sockId == socket.id) {
-        //TODO:Specific ship rendering code goes here
-        // console.log("This is mine ship bro");
         this_Ship = data_ship[i]
-      } else {
-        // ships.push(data_ship[i])
       }
       ships = data_ship
     }
-  });
-
-  socket.on('hjerteslag', (data) => {
-    ships = data;
-    leaderboard = data;
-    leaderboard.sort((a, b) => {
-      return b.score - a.score
-    });
   });
 
   socket.on('cosmicDust', (data) => {
@@ -134,7 +123,7 @@ function setup() {
   });
 
   socket.on('dustRemove', (data) => {
-    dust.splice(data,1);
+    dust.splice(data, 1);
   });
 
   socket.on('weaponData', (data) => {
@@ -185,6 +174,12 @@ function draw() {
   if (ui.lobby) {
     $('.hub').show();
     skinChangerGui.show()
+
+    for (let i = 0; i < sprites.length; i++) {
+      sprites[i].remove()
+      isSpritesLoaded = false
+    }
+
     push();
     fill(255);
     textAlign(CENTER);
@@ -198,6 +193,20 @@ function draw() {
       text('Hello ' + username, 30, 30);
       pop();
     }
+
+    push()
+    fill(255)
+    textAlign(CENTER)
+    textSize(TEXT_SIZE)
+    text("Press \".\" to change skin", width / 2, height - 10)
+    if (isSkinChangerOpened) {
+      for (let i = 0; i < skinImg.length; i++) {
+        let index = i + 1;
+        image(skinImg[i], width / 4 * index, height - 500)
+        text("Press " + index, width / 3.5 * index, height - 400)
+      }
+    }
+    pop()
 
     push();
     fill(255);
@@ -296,12 +305,13 @@ function draw() {
         isSpritesLoaded = true;
       }
 
+      // Drawing players' ships
       push();
       translate(ships[i].x, ships[i].y);
       rotate(ships[i].heading);
       fill(0);
       stroke(255, 0, 0);
-      sprites[i].addImage(skinImg)
+      sprites[i].addImage(skinImg[ships[i].skinId == null ? 0 : ships[i].skinId])
       drawSprites();
       pop()
       push();
@@ -435,6 +445,21 @@ function keyPressed() {
   } else if (keyCode == 72) {
     // Help
     isHelpShowed = isHelpShowed == true ? false : true
+  } else if (keyCode == 190) {
+    // Skin Changer
+    isSkinChangerOpened = isSkinChangerOpened == true ? false : true
+  } else if (keyCode == 49) {
+    // Skin Changer - select 1 skin
+    if (isSkinChangerOpened) {
+      socket.emit("skin", 0)
+      isSkinChangerOpened = false
+    }
+  } else if (keyCode == 50) {
+    // Skin Changer - select 2 skin
+    if (isSkinChangerOpened) {
+      socket.emit("skin", 1)
+      isSkinChangerOpened = false
+    }
   }
   socket.emit('movement', movement);
 }
