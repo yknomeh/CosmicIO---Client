@@ -21,6 +21,7 @@ let time = LOBBY_TIME;
 let lobby = true;
 let dust = [];
 let clientDust = [];
+let lasers = [];
 
 console.log("Cosmic.io server. All right reserved".red);
 app.use(express.static("local"));
@@ -44,7 +45,7 @@ function game() {
             alive: true,
             movement: { left: false, right: false, up: false, down: false }
         };
-        playerShip.transform.addShape(new p2.Box({ width: 10,height:60 }));
+        playerShip.transform.addShape(new p2.Box({ width: 80,height:240 }));
         world.addBody(playerShip.transform);
         ships.push(playerShip);
         syncUI();
@@ -139,8 +140,7 @@ function generateDust() {
         let x = Math.random() * (500 * RENDER_SIZE - -500 * RENDER_SIZE) + -500 * RENDER_SIZE;
         let y = Math.random() * (500 * RENDER_SIZE - -500 * RENDER_SIZE) + -500 * RENDER_SIZE;
         let transform = new p2.Body({ mass: 0, position: [x, y] });
-        transform.addShape(new p2.Circle({ radius: RENDER_SIZE }));
-        transform.sensor = true;
+        transform.addShape(new p2.Circle({ sensor:true,radius: RENDER_SIZE }));
         transform.motionState = p2.Body.STATIC;
         dust[i] = { size: 15, transform: transform };
         world.addBody(dust[i].transform);
@@ -183,9 +183,23 @@ function onDustCollect(body1,body2)
         }
         catch(E)
         {
-            console.log(E.red);
+
         }
     }
+}
+
+function shotlaser(x,y,heading)
+{
+    let laser = {
+            transform: new p2.Body({ 
+                mass: 5,
+                position: [x, y],
+                angle: heading
+            }),
+    };
+    laser.transform.addShape(new p2.Box({ width: 80,height:240 }));
+    laser.transform.applyForce([0, PHYSICS_LASER_FORCE * deltaTime]);
+    lasers.push(laser);
 }
 
 function findShipIdByTransform(transform)
