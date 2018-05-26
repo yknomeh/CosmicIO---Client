@@ -44,22 +44,14 @@ function game() {
             sockId: sock.id,
             alive: true,
             cooldown: 0,
-<<<<<<< HEAD
             skinId: null,
             movement: { left: false, right: false, up: false, down: false, shoot: false }
-=======
-            movement: { left: false, right: false, up: false, down: false, shoot: false}
->>>>>>> master
         };
         playerShip.transform.addShape(new p2.Box({ width: 80, height: 240 }));
         world.addBody(playerShip.transform);
         ships.push(playerShip);
         syncUI();
-<<<<<<< HEAD
         if (!lobby) sock.to(playerShip.id).emit('cosmicDust', clientDust);
-=======
-        if (!lobby) sock.to(playerShip.id).emit('cosmicDust',clientDust);
->>>>>>> master
 
         //Movement
         sock.on('movement', (data) => {
@@ -194,20 +186,12 @@ function onDustCollect(body1, body2) {
             dust.splice(index, 1);
             syncDustDelete(index);
         }
-<<<<<<< HEAD
         catch (E) {
-=======
-        catch(E)
-        {
->>>>>>> master
             //Assuming 1st budy is ship and 2nd laser
 
             //Assuming 2nd body is ship and 1st laser
             //Assuming that Nazim is gay
-<<<<<<< HEAD
             //Nazim is gay ~yknomeh
-=======
->>>>>>> master
         }
     }
 }
@@ -259,16 +243,12 @@ function findLaserIdByTransform(transform)
                / _)         
         .-^^^-/ /          
     __/       /              
-<<<<<<< HEAD
     <__.|_|-|_|  
     
       /\_/\
     =( °w° )=
       )   (  //
      (__ __)//
-=======
-    <__.|_|-|_|              
->>>>>>> master
 */
 
 function syncUI() {
@@ -293,14 +273,6 @@ function syncShips() {
     io.emit('ships', shipData);
 }
 
-<<<<<<< HEAD
 function syncDustDelete(i) {
     io.emit('dustRemove', i);
 }
-=======
-function syncDustDelete(i)
-{
-    io.emit('dustRemove',i);
-}
-
->>>>>>> master
