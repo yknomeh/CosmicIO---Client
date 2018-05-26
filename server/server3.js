@@ -50,7 +50,7 @@ function game() {
         world.addBody(playerShip.transform);
         ships.push(playerShip);
         syncUI();
-        if (!lobby) io.sockets.to(playerShip.id).emit('cosmicDust',clientDust);
+        if (!lobby) sock.to(playerShip.id).emit('cosmicDust',clientDust);
 
         //Movement
         sock.on('movement', (data) => {
