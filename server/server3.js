@@ -207,7 +207,7 @@ function findShipIdByTransform(transform)
     for (let i = 0; i < ships.length; i++) {
         if (ships[i].transform==transform)return i;
     }
-    throw "kurwa znowu sie zjebało xD";
+    throw "Zaraza! znowu sie przechędożyło!";
 }
 
 function findDustIdByTransform(transform)
@@ -215,7 +215,7 @@ function findDustIdByTransform(transform)
     for (let i = 0; i < dust.length; i++) {
         if (dust[i].transform==transform)return i;
     }
-    throw "kurwa znowu sie zjebało xD";
+    throw "Zaraza! znowu sie przechędożyło!";
 }
 
 //Sync functions

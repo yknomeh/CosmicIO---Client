@@ -3,9 +3,14 @@ global.SERVER_BEAT = 10; /* refreshing in ms */
 global.RENDER_SIZE = 5; /* size of dust rendering */
 global.AMOUNT_OF_DUST = 500; /* amount of dust */
 
+<<<<<<< Updated upstream
 global.LOBBY_TIME = 6; /* lobby/hub time */
 global.GAME_TIME = 1800; /* game time */
 
+=======
+global.LOBBY_TIME = 15; /* lobby/hub time */
+global.GAME_TIME = 180; /* game time */
+>>>>>>> Stashed changes
 global.STARTING_HP=100;
 global.SPEED = 5;
 
