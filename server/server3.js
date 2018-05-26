@@ -43,7 +43,8 @@ function game() {
             score: 0,
             sockId: sock.id,
             alive: true,
-            movement: { left: false, right: false, up: false, down: false }
+            cooldown: 0,
+            movement: { left: false, right: false, up: false, down: false, shoot: false}
         };
         playerShip.transform.addShape(new p2.Box({ width: 80,height:240 }));
         world.addBody(playerShip.transform);
@@ -183,7 +184,10 @@ function onDustCollect(body1,body2)
         }
         catch(E)
         {
+            //Assuming 1st budy is ship and 2nd laser
 
+            //Assuming 2nd body is ship and 1st laser
+            //Assuming that Nazim is gay
         }
     }
 }
@@ -218,7 +222,22 @@ function findDustIdByTransform(transform)
     throw "kurwa znowu sie zjebało xD";
 }
 
+function findLaserIdByTransform(transform)
+{
+    for (let i = 0; i < lasers.length; i++) {
+        if (laser[i].transform==transform)return i;
+    }
+    throw "zjebało się na amen exception";
+}
+
 //Sync functions
+/*              __
+               / _)         
+        .-^^^-/ /          
+    __/       /              
+    <__.|_|-|_|              
+*/
+
 function syncUI() {
     io.emit('ui', { title: 'Cosmic.IO - Lobby', lobby: lobby, time: Math.floor(time) });
 }
@@ -245,3 +264,4 @@ function syncDustDelete(i)
 {
     io.emit('dustRemove',i);
 }
+
