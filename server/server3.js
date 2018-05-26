@@ -51,11 +51,7 @@ function game() {
         world.addBody(playerShip.transform);
         ships.push(playerShip);
         syncUI();
-<<<<<<< HEAD
         if (!lobby) sock.emit('cosmicDust',refreshClientDust());
-=======
-        if (!lobby) sock.to(playerShip.id).emit('cosmicDust', clientDust);
->>>>>>> cc96c8b7485ecc2ef511ac81e21df47c68b4eec0
 
         //Movement
         sock.on('movement', (data) => {
@@ -147,6 +143,9 @@ function updatePosition(deltaTime) {
 }
 
 function generateDust() {
+    foreach(dust, (object, key, array) => {
+        world.removeBody(dust.transform);
+    });
     for (let i = 0; i < AMOUNT_OF_DUST; i++) {
         let x = Math.random() * (500 * RENDER_SIZE - -500 * RENDER_SIZE) + -500 * RENDER_SIZE;
         let y = Math.random() * (500 * RENDER_SIZE - -500 * RENDER_SIZE) + -500 * RENDER_SIZE;
@@ -172,7 +171,6 @@ function generateDust() {
     io.sockets.emit('cosmicDust', clientDust)
 }
 
-<<<<<<< HEAD
 function refreshClientDust()
 {
     clientDust = [];
@@ -188,9 +186,6 @@ function refreshClientDust()
 
 function onDustCollect(body1,body2)
 {
-=======
-function onDustCollect(body1, body2) {
->>>>>>> cc96c8b7485ecc2ef511ac81e21df47c68b4eec0
     //Try compare bodies, assuming 1st body is ship
     try {
         ships[findShipIdByTransform(body1)].score += 1;
