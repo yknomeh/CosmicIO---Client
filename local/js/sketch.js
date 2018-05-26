@@ -133,6 +133,10 @@ function setup() {
     dustData = data;
   });
 
+  socket.on('dustRemove', (data) => {
+    dust.splice(data,1);
+  });
+
   socket.on('weaponData', (data) => {
     for (let i = data.length - 1; i >= 0; i--) {
       let pos = createVector(data[i].x, data[i].y);

@@ -20,6 +20,7 @@ let world = new p2.World({ gravity: [0, 0] }); world.defaultContactMaterial.fric
 let time = LOBBY_TIME;
 let lobby = true;
 let dust = [];
+let clientDust = [];
 
 console.log("Cosmic.io server. All right reserved".red);
 app.use(express.static("local"));
@@ -43,11 +44,11 @@ function game() {
             alive: true,
             movement: { left: false, right: false, up: false, down: false }
         };
-        playerShip.transform.addShape(new p2.Circle({ radius: 5 }));
+        playerShip.transform.addShape(new p2.Box({ width: 10,height:60 }));
         world.addBody(playerShip.transform);
         ships.push(playerShip);
         syncUI();
-        if (!lobby) io.sockets.to(playerShip.id).emit('cosmicDust', dust);
+        if (!lobby) io.sockets.to(playerShip.id).emit('cosmicDust',clientDust);
 
         //Movement
         sock.on('movement', (data) => {
@@ -63,12 +64,6 @@ function game() {
             ships.pop(shipBySocketId(sock.id));
             console.log('Player disconnected:' + sock.id);
         });
-    });
-
-    //Disconnect
-    sock.on('disconnect', (data) => {
-        ships.pop(shipBySocketId(sock.id));
-        console.log('Player disconnected:' + sock.id);
     });
 
     //Server loop
@@ -132,10 +127,10 @@ function updateTime(deltaTime) {
 
 function updatePosition(deltaTime) {
     for (let i = 0; i < ships.length; i++) {
-        if (ships[i].movement.up) ships[i].transform.applyForceLocal([0, 5 * deltaTime]);
-        if (ships[i].movement.down) ships[i].transform.applyForceLocal([0, 5 * deltaTime * -1]);
-        if (ships[i].movement.left) ships[i].transform.angularVelocity = deltaTime * -10;
-        if (ships[i].movement.right) ships[i].transform.angularVelocity = deltaTime * 10;
+        if (ships[i].movement.up) ships[i].transform.applyForceLocal([0, PHYSICS_FORCE * deltaTime]);
+        if (ships[i].movement.down) ships[i].transform.applyForceLocal([0, PHYSICS_FORCE * deltaTime * -1]);
+        if (ships[i].movement.left) ships[i].transform.angularVelocity = deltaTime * PHYSICS_ROTATION_FORCE * -1;
+        if (ships[i].movement.right) ships[i].transform.angularVelocity = deltaTime * PHYSICS_ROTATION_FORCE;
     }
 }
 
@@ -150,7 +145,12 @@ function generateDust() {
         dust[i] = { size: 15, transform: transform };
         world.addBody(dust[i].transform);
     }
-    let clientDust = [];
+    //Dust collision handling
+    world.on('beginContact',function(evt){
+        onDustCollect(evt.bodyA,evt.bodyB);
+    });
+
+    clientDust = [];
     foreach(dust, (object, key, array) => {
         clientDust[key] = {
             size: object.size,
@@ -159,6 +159,49 @@ function generateDust() {
         }
     });
     io.sockets.emit('cosmicDust', clientDust)
+}
+
+function onDustCollect(body1,body2)
+{
+    //Try compare bodies, assuming 1st body is ship
+    try{
+        ships[findShipIdByTransform(body1)].score+=1;
+        let index = findDustIdByTransform(body2);
+        world.removeBody(dust[index].transform);
+        dust.splice(index,1);
+        syncDustDelete(index);
+    }
+    catch(e){
+        //Assuming 2nd body is ship
+        try
+        {
+            ships[findShipIdByTransform(body2)].score+=1;
+            let index = findDustIdByTransform(body1);
+            world.removeBody(dust[index].transform);
+            dust.splice(index,1);
+            syncDustDelete(index);
+        }
+        catch(E)
+        {
+            console.log(E.red);
+        }
+    }
+}
+
+function findShipIdByTransform(transform)
+{
+    for (let i = 0; i < ships.length; i++) {
+        if (ships[i].transform==transform)return i;
+    }
+    throw "kurwa znowu sie zjebało xD";
+}
+
+function findDustIdByTransform(transform)
+{
+    for (let i = 0; i < dust.length; i++) {
+        if (dust[i].transform==transform)return i;
+    }
+    throw "kurwa znowu sie zjebało xD";
 }
 
 //Sync functions
@@ -182,4 +225,9 @@ function syncShips() {
         shipData[key] = prepared;
     });
     io.emit('ships', shipData);
+}
+
+function syncDustDelete(i)
+{
+    io.emit('dustRemove',i);
 }

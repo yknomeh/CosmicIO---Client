@@ -9,6 +9,7 @@ global.STARTING_HP=100;
 global.SPEED = 5;
 
 global.PHYSICS_TIMESTEP = 1000/50; //Physics timestep
-
+global.PHYSICS_FORCE = 5;
+global.PHYSICS_ROTATION_FORCE=5;
 global.SYNC_UI = 1000; //UI Sync time
 /* END of CONFIG */ 
