@@ -232,8 +232,8 @@ function onDustCollect(body1,body2)
             //Assuming 2nd body is ship and 1st laser
             //Assuming that Nazim is gay
             //Nazim is gay ~yknomeh
-            if(true)
-                nazim.gay==true;
+           // if(true)
+            //    nazim.gay==true;
         }
     }
 }
