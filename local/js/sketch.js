@@ -49,11 +49,7 @@ let sprites = []
 
 let isHelpShowed = false
 
-let skinChangerGui;
 let isSkinChangerOpened = false;
-
-let sprite1;
-let sprite2;
 
 let isSpritesLoaded = false;
 
@@ -155,9 +151,6 @@ function setup() {
   });
 
   usrInput = createInput();
-
-  skinChangerGui = createGui("Select skin")
-
 }
 
 
@@ -176,7 +169,6 @@ function draw() {
   // TIMER
   if (ui.lobby) {
     $('.hub').show();
-    skinChangerGui.show()
 
     for (let i = 0; i < sprites.length; i++) {
       sprites[i].remove()
@@ -227,7 +219,6 @@ function draw() {
 
   } else if (_canPlay) {
     $('.hub').hide();
-    skinChangerGui.hide()
 
     push();
 
@@ -454,7 +445,9 @@ function keyPressed() {
     isHelpShowed = isHelpShowed == true ? false : true
   } else if (keyCode == 190) {
     // Skin Changer
-    isSkinChangerOpened = isSkinChangerOpened == true ? false : true
+    if (ui.lobby) {
+      isSkinChangerOpened = isSkinChangerOpened == true ? false : true
+    }
   } else if (keyCode == 49) {
     // Skin Changer - select 1 skin
     if (isSkinChangerOpened) {
