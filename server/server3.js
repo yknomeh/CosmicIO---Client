@@ -68,10 +68,12 @@ function game() {
             shipBySocketId(sock.id).skinId = data;
         });
 
+        //Disconnect
         sock.on('disconnect', (data) => {
             ships.pop(shipBySocketId(sock.id));
             console.log('Player disconnected:' + sock.id);
         });
+        
     });
 
     //Server loop
@@ -144,7 +146,10 @@ function updatePosition(deltaTime) {
 
 function generateDust() {
     foreach(dust, (object, key, array) => {
+        try{
         world.removeBody(dust.transform);
+        }
+        catch(e){}
     });
     for (let i = 0; i < AMOUNT_OF_DUST; i++) {
         let x = Math.random() * (500 * RENDER_SIZE - -500 * RENDER_SIZE) + -500 * RENDER_SIZE;
