@@ -252,14 +252,6 @@ function findLaserIdByTransform(transform) {
     throw "Nazim is gay exception";
 }
 
-function findLaserIdByTransform(transform)
-{
-    for (let i = 0; i < lasers.length; i++) {
-        if (laser[i].transform==transform)return i;
-    }
-    throw "zjebało się na amen exception";
-}
-
 //Sync functions
 /*              __
                / _)         

@@ -52,6 +52,9 @@ let isHelpShowed = false
 let skinChangerGui;
 let isSkinChangerOpened = false;
 
+let sprite1;
+let sprite2;
+
 let isSpritesLoaded = false;
 
 
@@ -296,33 +299,37 @@ function draw() {
         }
       }
     }
-    for (let i = ships.length - 1; i >= 0; i--) {
+
+    // Drawing players' ships
+    for (let i = 0; i < ships.length; i++) {
+      push();
 
       if (!isSpritesLoaded) {
-        for (let i = 0; i < ships.length; i++) {
-          sprites[i] = createSprite(0, 0);
+        sprites = []
+        for (let j = 0; j < ships.length; j++) {
+          sprites[j] = createSprite(0, 0)
         }
         isSpritesLoaded = true;
       }
 
-      // Drawing players' ships
-      push();
-      translate(ships[i].x, ships[i].y);
-      rotate(ships[i].heading);
-      fill(0);
-      stroke(255, 0, 0);
+      
+      sprites[i].position.x = ships[i].x
+      sprites[i].position.y = ships[i].y
+      sprites[i].rotation = degrees(ships[i].heading)
+
       sprites[i].addImage(skinImg[ships[i].skinId == null ? 0 : ships[i].skinId])
-      drawSprites();
+    
       pop()
       push();
-
+      
       fill(0, 255, 0);
       textAlign(CENTER);
       textSize(TEXT_SIZE);
       text(ships[i].username + '\n <3: ' + ships[i].health, ships[i].x, ships[i].y + 150);
       pop()
-
+      
     }
+    drawSprites();
 
     for (let i = dust.length - 1; i >= 0; i--) {
       dust[i].render();
