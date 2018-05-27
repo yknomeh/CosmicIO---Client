@@ -1,6 +1,5 @@
 let socket;
 
-let ship;
 let ships = [];
 let this_Ship = {
   x: 0,
@@ -14,7 +13,6 @@ let this_Ship = {
 
 let dust = [];
 let dustData = [];
-let moon = [];
 let weapon = [];
 
 let leaderboard = [];
@@ -27,10 +25,6 @@ let alert = {
   duration: 1
 };
 
-const RENDER_SIZE = 5;
-const WEAPON_VELOCITY = 25;
-const AMOUNT_OF_DUST = 1000;
-const AMOUNT_OF_MOONS = 10;
 const TEXT_SIZE = 18;
 
 let zoom = 1;
@@ -39,10 +33,7 @@ let timer = "NaN:NaN";
 let usrInput;
 let username = " ";
 
-let _hub = true;
 let _canPlay = true;
-
-let _debugger = false;
 
 let skinImg = [];
 let sprites = []
@@ -76,16 +67,8 @@ function setup() {
     window.innerHeight
   );
 
-  ship = new Ship(60, 0, 0, RENDER_SIZE, skinImg);
-
   // Connection
   socket = io.connect('http://' + window.location.hostname + ':3000');
-
-  socket.on('connect', () => {
-    socket.on('hubOff', (data) => {
-      _canPlay = data.spec;
-    });
-  });
 
   //UI update
   socket.on('ui', (data) => {
@@ -94,14 +77,17 @@ function setup() {
     draw();
   });
 
+  // Disconnect
   socket.on('disconnect', () => {
     window.location.reload();
   });
 
+  // Alert
   socket.on('alert', (alertdata) => {
     alert = alertdata;
   })
 
+  //Getting ships
   socket.on('ships', (data_ship) => {
     for (let i = 0; i < data_ship.length; i++) {
       if (data_ship[i].sockId == socket.id) {
@@ -125,27 +111,6 @@ function setup() {
     dust.splice(data, 1);
   });
 
-  socket.on('weaponData', (data) => {
-    for (let i = data.length - 1; i >= 0; i--) {
-      let pos = createVector(data[i].x, data[i].y);
-      weapon.push(new Weapon(data[i].id, pos, data[i].heading, WEAPON_VELOCITY));
-    }
-
-  });
-
-  socket.on('weaponDelete', (data) => {
-    weapon.splice(data, 1);
-  });
-
-  socket.on('time', (data) => {
-    timer = data.minutes + ":" + data.seconds;
-  });
-
-  socket.on('game', (data) => {
-    document.title = data.title;
-    _hub = data.hub;
-  });
-
   socket.on('messages', (data) => {
     messageboard = _.takeRight(data, 5);
   });
@@ -155,19 +120,19 @@ function setup() {
 
 
 function draw() {
-  background(0);
-
-  if (_debugger) {
-    console.log('SHIP: { x: ' + ship.pos.x + ' y: ' + ship.pos.y + " }");
-  }
+  background(0)
 
   push();
   usrInput.position(width * 0.35, height / 2.3);
   usrInput.class('hub');
   pop();
+
   let delta = 1 / frameRate();
   // TIMER
+
   if (ui.lobby) {
+    // Lobby
+
     $('.hub').show();
 
     for (let i = 0; i < sprites.length; i++) {
@@ -218,6 +183,8 @@ function draw() {
     pop();
 
   } else if (_canPlay) {
+    // Game
+
     $('.hub').hide();
 
     push();
@@ -324,28 +291,11 @@ function draw() {
 
     for (let i = dust.length - 1; i >= 0; i--) {
       dust[i].render();
-      if (ship.collectDust(dust[i])) {
-        socket.emit('updatedust', i);
-      }
     }
 
-    for (let i = ships.length - 1; i >= 0; i--) {
-      if (ships[i].id === socket.id) {
-        let shipData = {
-          x: ship.pos.x,
-          y: ship.pos.y,
-          heading: ship.heading,
-          size: ship.size,
-          health: ships[i].health,
-          usrname: username,
-          score: ships[i].score
-        }
-        scr = ships[i].score
-        socket.emit('update', shipData);
-      }
-    }
     ui.time -= delta;
   } else {
+    // Spectator
     $('.hub').hide();
 
     push();
@@ -371,25 +321,9 @@ function draw() {
     }
     pop();
 
+    // Rendering player's ships
     for (let i = ships.length - 1; i >= 0; i--) {
-      translate(width / 2, height / 2);
-      let newscale = 50 / ship.size;
-      zoom = lerp(zoom, newscale, 0.1);
-      scale(zoom);
-      translate(-ships[0].x, -ships[0].y);
-
-      if (socket.id !== ships[i].id) {
-        push();
-        translate(ships[i].x, ships[i].y);
-        rotate(ships[i].heading);
-        fill(0);
-        stroke(255, 255, 0);
-        pop();
-        fill(255);
-        textAlign(CENTER);
-        textSize(TEXT_SIZE);
-        text(ships[i].username + '\n <3: ' + ships[i].health, ships[i].x, ships[i].y + ships[i].size * 2);
-      }
+      // TODO <-- this
     }
 
     //Alert
@@ -421,7 +355,7 @@ function keyPressed() {
     //TODO <-- boost
   } else if (keyCode == 32) {
     // On Press 'Space'
-    if (_canPlay && !_hub) {
+    if (_canPlay) {
       //TODO <-- weapon
 
       // let weaponData = {
@@ -433,7 +367,7 @@ function keyPressed() {
     }
   } else if (keyCode == 13) {
     // On Press 'Enter'
-    if (_hub && usrInput.value().length < 18) {
+    if (usrInput.value().length < 18) {
       username = usrInput.value();
     } else if (usrInput.value().length >= 18) {
       username = "Too long bruh";
@@ -467,16 +401,12 @@ function keyPressed() {
 function keyReleased() {
   if (keyCode == UP_ARROW || keyCode == 87) {
     movement.up = false;
-    ship.engineWorking(false);
   } else if (keyCode == RIGHT_ARROW || keyCode == 68) {
     movement.right = false;
-    ship.rotation = 0;
   } else if (keyCode == LEFT_ARROW || keyCode == 65) {
     movement.left = false;
-    ship.rotation = 0;
   } else if (keyCode == 16) {
     // On Release 'Shift'
-    ship.boostOn(false);
   } else if (keyCode == 32) {
     // On Release 'Space'
   }
