@@ -7,6 +7,7 @@ const io = socket(server)
 const colors = require('colors')
 const p2 = require('p2')
 const foreach = require('foreach')
+
 //Config file
 let config = require('./config')
 
@@ -30,7 +31,7 @@ game();
 
 function game() {
     console.log("Loading game server");
-    //Conncting
+    //Connecting
     io.sockets.on('connection', (sock) => {
         console.log("Player connected:" + sock.id);
         currentPlayers++;
@@ -99,6 +100,22 @@ function game() {
         syncUI();
     }, SYNC_UI);
 
+    /*
+       ("`-''-/").___..--''"`-._ 
+   `6_ 6  )   `-.  (     ).`-.__.`) 
+   (_Y_.)'  ._   )  `._ `. ``-..-`  
+  _..`--'_..-_/  /--'_.' ,'  
+(il),-''  (li),'  ((!.-'
+It's a tigeeeeeeeeeeeeeeeeeeeeeeer
+  _______
+ /       \
+|         | Byku
+| Monster | Dupnij
+|  Energy | Sobie
+| Drink   | Monsterka
+|         | *_* ~Tomana
+\_________/
+   */
     console.log("Server Ready!".green);
 }
 
@@ -141,6 +158,7 @@ function updatePosition(deltaTime) {
         if (ships[i].movement.down) ships[i].transform.applyForceLocal([0, PHYSICS_FORCE * deltaTime * -1]);
         if (ships[i].movement.left) ships[i].transform.angularVelocity = deltaTime * PHYSICS_ROTATION_FORCE * -1;
         if (ships[i].movement.right) ships[i].transform.angularVelocity = deltaTime * PHYSICS_ROTATION_FORCE;
+        if (ships[i].movement.shoot) shotlaser(ships[i].transform.position[0],ships[i].transform.position[1],ships[i].transform.angle);
     }
 }
 
@@ -214,6 +232,8 @@ function onDustCollect(body1,body2)
             //Assuming 2nd body is ship and 1st laser
             //Assuming that Nazim is gay
             //Nazim is gay ~yknomeh
+            if(true)
+                nazim.gay==true;
         }
     }
 }
@@ -226,7 +246,7 @@ function shotlaser(x, y, heading) {
             angle: heading
         }),
     };
-    laser.transform.addShape(new p2.Box({ width: 80, height: 240 }));
+    laser.transform.addShape(new p2.Box({ width: 80, height: 240, sensor:true}));
     laser.transform.applyForce([0, PHYSICS_LASER_FORCE * deltaTime]);
     lasers.push(laser);
 }
