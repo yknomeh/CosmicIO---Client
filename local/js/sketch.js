@@ -60,10 +60,10 @@ let isSpritesLoaded = false;
 
 //Nowe
 let ui = {
-  title: 'Cosmic.IO - Lobby',
-  lobby: true,
-  time: 999,
-  alert: { message: 'test2', duration: 1 }
+  Title: 'Cosmic.IO - Lobby',
+  Lobby: true,
+  Time: 999,
+  Alert: { message: 'test2', duration: 1 }
 }
 
 let movement = { left: false, right: false, up: false, down: false };
@@ -93,8 +93,10 @@ function setup() {
 
   //UI update
   socket.on('ui', (data) => {
+    console.log("ui");
+    console.log(data);
     ui = data;
-    document.title = ui.title;
+    document.title = ui.Title;
     draw();
   });
 
@@ -174,7 +176,7 @@ function draw() {
   pop();
   let delta = 1 / frameRate();
   // TIMER
-  if (ui.lobby) {
+  if (ui.Lobby) {
     $('.hub').show();
     skinChangerGui.show()
 
@@ -187,7 +189,7 @@ function draw() {
     fill(255);
     textAlign(CENTER);
     textSize(TEXT_SIZE * 1.5);
-    text('Preparing game\n' + ui.time + ' seconds left', width / 2, 40);
+    text('Preparing game\n' + ui.Time + ' seconds left', width / 2, 40);
 
     // Hello
     if (username != " " || username != "") {
@@ -235,7 +237,7 @@ function draw() {
     fill(255);
     textAlign(CENTER);
     textSize(TEXT_SIZE * 1.5);
-    text(Math.floor(ui.time) <= -1 ? 0 : Math.floor(ui.time), width / 2, 40);
+    text(Math.floor(ui.Time) <= -1 ? 0 : Math.floor(ui.Time), width / 2, 40);
 
     // SCORE
     textAlign(LEFT);
@@ -353,7 +355,7 @@ function draw() {
         socket.emit('update', shipData);
       }
     }
-    ui.time -= delta;
+    ui.Time -= delta;
   } else {
     $('.hub').hide();
 
