@@ -53,7 +53,7 @@ let ui = {
   Alert: { message: 'test2', duration: 1 }
 }
 
-let movement = { left: false, right: false, up: false, down: false };
+let movement = { Left: false, Right: false, Up: false, Down: false };
 
 function preload() {
   for (let i = 0; i < 2; i++) {
@@ -131,14 +131,10 @@ function draw() {
 
   let delta = 1 / frameRate();
   // TIMER
-<<<<<<< HEAD
-  if (ui.Lobby) {
-=======
 
-  if (ui.lobby) {
+  if (ui.Lobby) {
     // Lobby
 
->>>>>>> afe9a910be621ba272eca850f6641e3a4139cbf6
     $('.hub').show();
 
     for (let i = 0; i < sprites.length; i++) {
@@ -299,7 +295,6 @@ function draw() {
       dust[i].render();
     }
 
-<<<<<<< HEAD
     for (let i = ships.length - 1; i >= 0; i--) {
       if (ships[i].id === socket.id) {
         let shipData = {
@@ -316,9 +311,6 @@ function draw() {
       }
     }
     ui.Time -= delta;
-=======
-    ui.time -= delta;
->>>>>>> afe9a910be621ba272eca850f6641e3a4139cbf6
   } else {
     // Spectator
     $('.hub').hide();
