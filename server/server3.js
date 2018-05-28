@@ -1,3 +1,17 @@
+/*
+
+ $$$$$$\                                    $$\                 $$$$$$\  $$$$$$\  
+$$  __$$\                                   \__|                \_$$  _|$$  __$$\ 
+$$ /  \__| $$$$$$\   $$$$$$$\ $$$$$$\$$$$\  $$\  $$$$$$$\         $$ |  $$ /  $$ |
+$$ |      $$  __$$\ $$  _____|$$  _$$  _$$\ $$ |$$  _____|        $$ |  $$ |  $$ |
+$$ |      $$ /  $$ |\$$$$$$\  $$ / $$ / $$ |$$ |$$ /              $$ |  $$ |  $$ |
+$$ |  $$\ $$ |  $$ | \____$$\ $$ | $$ | $$ |$$ |$$ |              $$ |  $$ |  $$ |
+\$$$$$$  |\$$$$$$  |$$$$$$$  |$$ | $$ | $$ |$$ |\$$$$$$$\       $$$$$$\  $$$$$$  |
+ \______/  \______/ \_______/ \__| \__| \__|\__| \_______|      \______| \______/ 
+                                                                                                                                                               
+
+*/
+
 //Imports
 const express = require('express')
 const socket = require('socket.io')
@@ -52,7 +66,7 @@ function game() {
         world.addBody(playerShip.transform);
         ships.push(playerShip);
         syncUI();
-        if (!lobby) sock.emit('cosmicDust',refreshClientDust());
+        if (!lobby) sock.emit('cosmicDust', refreshClientDust());
 
         //Movement
         sock.on('movement', (data) => {
@@ -194,8 +208,7 @@ function generateDust() {
     io.sockets.emit('cosmicDust', clientDust)
 }
 
-function refreshClientDust()
-{
+function refreshClientDust() {
     clientDust = [];
     foreach(dust, (object, key, array) => {
         clientDust[key] = {
@@ -207,8 +220,7 @@ function refreshClientDust()
     return clientDust;
 }
 
-function onDustCollect(body1,body2)
-{
+function onDustCollect(body1, body2) {
     //Try compare bodies, assuming 1st body is ship
     try {
         ships[findShipIdByTransform(body1)].score += 1;
@@ -234,6 +246,7 @@ function onDustCollect(body1,body2)
             //Nazim is gay ~yknomeh
            // if(true)
             //    nazim.gay==true;
+            // while(true) console.log("nazim is gay")
         }
     }
 }
@@ -283,6 +296,15 @@ function findLaserIdByTransform(transform) {
     =( °w° )=
       )   (  //
      (__ __)//
+
+          /\~"~/\~""~~____
+    ("`-'/"").       "'"`~-._     .
+ __~6 _ 6    }       {      }.-.__.)
+(oo) |\     }        {       }"--,-'
+ "--.~~~ __/ {   }    \     }
+     '"ii"/ \_ \  | __~ "; >"
+        / /  ""\ |"    / /
+       ^^"      ^^    ^^"
 */
 
 function syncUI() {
