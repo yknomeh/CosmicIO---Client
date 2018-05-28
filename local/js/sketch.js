@@ -294,22 +294,6 @@ function draw() {
     for (let i = dust.length - 1; i >= 0; i--) {
       dust[i].render();
     }
-
-    for (let i = ships.length - 1; i >= 0; i--) {
-      if (ships[i].id === socket.id) {
-        let shipData = {
-          x: ship.pos.x,
-          y: ship.pos.y,
-          heading: ship.heading,
-          size: ship.size,
-          health: ships[i].health,
-          usrname: username,
-          score: ships[i].score
-        }
-        scr = ships[i].score
-        socket.emit('update', shipData);
-      }
-    }
     ui.Time -= delta;
   } else {
     // Spectator
