@@ -31,7 +31,7 @@ let zoom = 1;
 let timer = "NaN:NaN";
 
 let usrInput;
-let username = " ";
+let Username = " ";
 
 let _canPlay = true;
 
@@ -50,10 +50,10 @@ let ui = {
   Title: 'Cosmic.IO - Lobby',
   Lobby: true,
   Time: 999,
-  Alert: { message: 'test2', duration: 1 }
+  // alert: { message: 'test2', duration: 1 }
 }
 
-let movement = { Left: false, Right: false, Up: false, Down: false };
+let Movement = { Left: false, Right: false, Up: false, Down: false };
 
 function preload() {
   for (let i = 0; i < 2; i++) {
@@ -72,8 +72,6 @@ function setup() {
 
   //UI update
   socket.on('ui', (data) => {
-    console.log("ui");
-    console.log(data);
     ui = data;
     document.title = ui.Title;
     draw();
@@ -92,7 +90,7 @@ function setup() {
   //Getting ships
   socket.on('ships', (data_ship) => {
     for (let i = 0; i < data_ship.length; i++) {
-      if (data_ship[i].sockId == socket.id) {
+      if (data_ship[i].SockId == socket.id) {
         this_Ship = data_ship[i]
       }
       ships = data_ship
@@ -103,7 +101,7 @@ function setup() {
     if (dust.length != data.length) {
       dust = [];
       for (let i = 0; i < data.length; i++) {
-        dust[i] = new CosmicDust(data[i].size, data[i].x, data[i].y);
+        dust[i] = new CosmicDust(data[i].Size, data[i].X, data[i].Y);
       }
     }
     dustData = data;
@@ -149,10 +147,10 @@ function draw() {
     text('Preparing game\n' + ui.Time + ' seconds left', width / 2, 40);
 
     // Hello
-    if (username != " " || username != "") {
+    if (Username != " " || Username != "") {
       textAlign(LEFT);
       textSize(TEXT_SIZE);
-      text('Hello ' + username, 30, 30);
+      text('Hello ' + Username, 30, 30);
       pop();
     }
 
@@ -207,7 +205,7 @@ function draw() {
       textAlign(RIGHT);
       textSize(TEXT_SIZE);
       let index = 1 + i;
-      text(index + ') ' + leaderboard[i].username + ' ' + leaderboard[i].score, width - 10, index * 20);
+      text(index + ') ' + leaderboard[i].Username + ' ' + leaderboard[i].Score, width - 10, index * 20);
     }
 
     // MESSAGEBOARD
@@ -242,10 +240,10 @@ function draw() {
     pop();
 
     translate(width / 2, height / 2);
-    let newscale = 50 / this_Ship.size;
+    let newscale = 50 / this_Ship.Size;
     zoom = lerp(zoom, newscale, 0.1);
     scale(zoom);
-    translate(-this_Ship.x, -this_Ship.y);
+    translate(-this_Ship.X, -this_Ship.Y);
 
     for (let i = weapon.length - 1; i >= 0; i--) {
 
@@ -273,11 +271,11 @@ function draw() {
       }
 
       
-      sprites[i].position.x = ships[i].x
-      sprites[i].position.y = ships[i].y
-      sprites[i].rotation = degrees(ships[i].heading)
+      sprites[i].position.x = ships[i].X
+      sprites[i].position.y = ships[i].Y
+      sprites[i].rotation = degrees(ships[i].Heading)
 
-      sprites[i].addImage(skinImg[ships[i].skinId == null ? 0 : ships[i].skinId])
+      sprites[i].addImage(skinImg[ships[i].SkinId == null ? 0 : ships[i].SkinId])
     
       pop()
       push();
@@ -285,7 +283,7 @@ function draw() {
       fill(0, 255, 0);
       textAlign(CENTER);
       textSize(TEXT_SIZE);
-      text(ships[i].username + '\n <3: ' + ships[i].health, ships[i].x, ships[i].y + 150);
+      text(ships[i].Username + '\n <3: ' + ships[i].Health, ships[i].X, ships[i].Y + 150);
       pop()
       
     }
@@ -294,6 +292,7 @@ function draw() {
     for (let i = dust.length - 1; i >= 0; i--) {
       dust[i].render();
     }
+
     ui.Time -= delta;
   } else {
     // Spectator
@@ -311,7 +310,7 @@ function draw() {
       textAlign(RIGHT);
       textSize(TEXT_SIZE);
       let index = 1 + i;
-      text(index + ') ' + leaderboard[i].username + ' ' + leaderboard[i].score, width - 10, index * 20);
+      text(index + ') ' + leaderboard[i].Username + ' ' + leaderboard[i].Score, width - 10, index * 20);
     }
 
     // MESSAGEBOARD
@@ -328,26 +327,26 @@ function draw() {
     }
 
     //Alert
-    if (ui.alert.duration > 0) {
-      push();
-      fill(255);
-      textAlign(LEFT);
-      textSize(TEXT_SIZE);
-      text(ui.alert.message, width * 0.5, height * 0.8);
-      pop();
-      ui.alert.duration -= delta;
-    }
+    // if (ui.alert.duration > 0) {
+    //   push();
+    //   fill(255);
+    //   textAlign(LEFT);
+    //   textSize(TEXT_SIZE);
+    //   text(ui.alert.message, width * 0.5, height * 0.8);
+    //   pop();
+    //   ui.alert.duration -= delta;
+    // }
 
   }
 }
 
 function keyPressed() {
   if (keyCode == RIGHT_ARROW || keyCode == 68) {
-    movement.right = true;
+    Movement.Right = true;
   } else if (keyCode == LEFT_ARROW || keyCode == 65) {
-    movement.left = true;
+    Movement.Left = true;
   } else if (keyCode == UP_ARROW || keyCode == 87) {
-    movement.up = true;
+    Movement.Up = true;
   } else if (keyCode == 69) {
     // On Press 'E'
     //TODO <-- engines
@@ -369,18 +368,18 @@ function keyPressed() {
   } else if (keyCode == 13) {
     // On Press 'Enter'
     if (usrInput.value().length < 18) {
-      username = usrInput.value();
+      Username = usrInput.value();
     } else if (usrInput.value().length >= 18) {
-      username = "Too long bruh";
+      Username = "Too long bruh";
     }
 
-    socket.emit('username', username);
+    socket.emit('username', Username);
   } else if (keyCode == 72) {
     // Help
     isHelpShowed = isHelpShowed == true ? false : true
   } else if (keyCode == 190) {
     // Skin Changer
-    if (ui.lobby) {
+    if (ui.Lobby) {
       isSkinChangerOpened = isSkinChangerOpened == true ? false : true
     }
   } else if (keyCode == 49) {
@@ -396,20 +395,20 @@ function keyPressed() {
       isSkinChangerOpened = false
     }
   }
-  socket.emit('movement', movement);
+  socket.emit('movement', Movement);
 }
 
 function keyReleased() {
   if (keyCode == UP_ARROW || keyCode == 87) {
-    movement.up = false;
+    Movement.Up = false;
   } else if (keyCode == RIGHT_ARROW || keyCode == 68) {
-    movement.right = false;
+    Movement.Right = false;
   } else if (keyCode == LEFT_ARROW || keyCode == 65) {
-    movement.left = false;
+    Movement.Left = false;
   } else if (keyCode == 16) {
     // On Release 'Shift'
   } else if (keyCode == 32) {
     // On Release 'Space'
   }
-  socket.emit('movement', movement);
+  socket.emit('movement', Movement);
 }
