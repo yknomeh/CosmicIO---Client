@@ -94,6 +94,11 @@ function setup() {
         this_Ship = data_ship[i]
       }
       ships = data_ship
+
+      leaderboard = data_ship
+      leaderboard.sort((a, b) => {
+          return b.Score - a.Score
+      })
     }
   });
 
@@ -198,7 +203,7 @@ function draw() {
     // SCORE
     textAlign(LEFT);
     textSize(TEXT_SIZE);
-    text('SCORE: ' + scr, 10, height - 10);
+    text('SCORE: ' + this_Ship.Score, 10, height - 10);
 
     // LEADERBOARD
     for (let i = 0; i < 10 && i < leaderboard.length; i++) {
