@@ -16,7 +16,7 @@ $$ |  $$\ $$ |  $$ | \____$$\ $$ | $$ | $$ |$$ |$$ |              $$ |  $$ |  $$
 const express = require('express')
 const socket = require('socket.io')
 const app = express()
-const server = app.listen(3000)
+const server = app.listen(3333)
 const io = socket(server)
 const colors = require('colors')
 const p2 = require('p2')
@@ -50,37 +50,37 @@ function game() {
         console.log("Player connected:" + sock.id);
         currentPlayers++;
         let playerShip = {
-            id: currentPlayers,
-            transform: new p2.Body({ mass: 5, position: [2, 4] }),
-            heading: 0,
-            health: STARTING_HP,
-            username: '',
-            score: 0,
-            sockId: sock.id,
-            alive: true,
-            cooldown: 0,
-            skinId: null,
-            movement: { left: false, right: false, up: false, down: false, shoot: false }
+            Id: currentPlayers,
+            Transform: new p2.Body({ mass: 5, position: [2, 4] }),
+            Heading: 0,
+            Health: STARTING_HP,
+            Username: '',
+            Score: 0,
+            SockId: sock.id,
+            Alive: true,
+            Cooldown: 0,
+            SkinId: null,
+            Movement: { Left: false, Right: false, Up: false, Down: false, Shoot: false }
         };
-        playerShip.transform.addShape(new p2.Box({ width: 80, height: 240 }));
-        world.addBody(playerShip.transform);
+        playerShip.Transform.addShape(new p2.Box({ width: 80, height: 240 }));
+        world.addBody(playerShip.Transform);
         ships.push(playerShip);
         syncUI();
         if (!lobby) sock.emit('cosmicDust', refreshClientDust());
 
         //Movement
         sock.on('movement', (data) => {
-            shipBySocketId(sock.id).movement = data;
+            shipBySocketId(sock.id).Movement = data;
         });
 
         //Username
         sock.on("username", (data) => {
-            shipBySocketId(sock.id).username = data;
+            shipBySocketId(sock.id).Username = data;
         });
 
         //Skin
         sock.on("skin", (data) => {
-            shipBySocketId(sock.id).skinId = data;
+            shipBySocketId(sock.id).SkinId = data;
         });
 
         //Disconnect
@@ -135,7 +135,7 @@ It's a tigeeeeeeeeeeeeeeeeeeeeeeer
 
 function shipBySocketId(sockId) {
     for (let i = 0; i < ships.length; i++) {
-        if (ships[i].sockId == sockId) {
+        if (ships[i].SockId == sockId) {
             return ships[i];
         }
     }
@@ -168,11 +168,11 @@ function updateTime(deltaTime) {
 
 function updatePosition(deltaTime) {
     for (let i = 0; i < ships.length; i++) {
-        if (ships[i].movement.up) ships[i].transform.applyForceLocal([0, PHYSICS_FORCE * deltaTime]);
-        if (ships[i].movement.down) ships[i].transform.applyForceLocal([0, PHYSICS_FORCE * deltaTime * -1]);
-        if (ships[i].movement.left) ships[i].transform.angularVelocity = deltaTime * PHYSICS_ROTATION_FORCE * -1;
-        if (ships[i].movement.right) ships[i].transform.angularVelocity = deltaTime * PHYSICS_ROTATION_FORCE;
-        if (ships[i].movement.shoot) shotlaser(ships[i].transform.position[0],ships[i].transform.position[1],ships[i].transform.angle);
+        if (ships[i].Movement.Up) ships[i].Transform.applyForceLocal([0, PHYSICS_FORCE * deltaTime]);
+        if (ships[i].Movement.Down) ships[i].Transform.applyForceLocal([0, PHYSICS_FORCE * deltaTime * -1]);
+        if (ships[i].Movement.Left) ships[i].Transform.angularVelocity = deltaTime * PHYSICS_ROTATION_FORCE * -1;
+        if (ships[i].Movement.Right) ships[i].Transform.angularVelocity = deltaTime * PHYSICS_ROTATION_FORCE;
+        if (ships[i].Movement.Shoot) shotlaser(ships[i].Transform.position[0],ships[i].Transform.position[1],ships[i].Transform.angle);
     }
 }
 
@@ -200,9 +200,9 @@ function generateDust() {
     clientDust = [];
     foreach(dust, (object, key, array) => {
         clientDust[key] = {
-            size: object.size,
-            x: object.transform.position[0],
-            y: object.transform.position[1]
+            Size: object.size,
+            X: object.transform.position[0],
+            Y: object.transform.position[1]
         }
     });
     io.sockets.emit('cosmicDust', clientDust)
@@ -223,7 +223,7 @@ function refreshClientDust() {
 function onDustCollect(body1, body2) {
     //Try compare bodies, assuming 1st body is ship
     try {
-        ships[findShipIdByTransform(body1)].score += 1;
+        ships[findShipIdByTransform(body1)].Score += 1;
         let index = findDustIdByTransform(body2);
         world.removeBody(dust[index].transform);
         dust.splice(index, 1);
@@ -232,7 +232,7 @@ function onDustCollect(body1, body2) {
     catch (e) {
         //Assuming 2nd body is ship
         try {
-            ships[findShipIdByTransform(body2)].score += 1;
+            ships[findShipIdByTransform(body2)].Score += 1;
             let index = findDustIdByTransform(body1);
             world.removeBody(dust[index].transform);
             dust.splice(index, 1);
@@ -266,7 +266,7 @@ function shotlaser(x, y, heading) {
 
 function findShipIdByTransform(transform) {
     for (let i = 0; i < ships.length; i++) {
-        if (ships[i].transform == transform) return i;
+        if (ships[i].Transform == transform) return i;
     }
     throw "Zaraza! znowu nazima przechędożyło!";
 }
@@ -308,21 +308,21 @@ function findLaserIdByTransform(transform) {
 */
 
 function syncUI() {
-    io.emit('ui', { title: 'Cosmic.IO - Lobby', lobby: lobby, time: Math.floor(time) });
+    io.emit('ui', { Title: 'Cosmic.IO - Lobby', Lobby: lobby, Time: Math.floor(time) });
 }
 
 function syncShips() {
     let shipData = [];
     foreach(ships, (ship, key, array) => {
         let prepared = {
-            x: ship.transform.position[0],
-            y: ship.transform.position[1],
-            heading: ship.transform.angle,
-            health: ship.health,
-            username: ship.username,
-            score: ship.score,
-            sockId: ship.sockId,
-            skinId: ship.skinId
+            X: ship.Transform.position[0],
+            Y: ship.Transform.position[1],
+            Heading: ship.Transform.angle,
+            Health: ship.Health,
+            Username: ship.Username,
+            Score: ship.Score,
+            SockId: ship.SockId,
+            SkinId: ship.SkinId
         }
         shipData[key] = prepared;
     });

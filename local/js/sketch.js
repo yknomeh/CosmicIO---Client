@@ -31,7 +31,7 @@ let zoom = 1;
 let timer = "NaN:NaN";
 
 let usrInput;
-let Username = " ";
+let Username = "";
 
 let _canPlay = true;
 
@@ -68,7 +68,7 @@ function setup() {
   );
 
   // Connection
-  socket = io.connect('http://' + window.location.hostname + ':3000');
+  socket = io.connect('http://' + window.location.hostname + ':3333');
 
   //UI update
   socket.on('ui', (data) => {
@@ -95,7 +95,7 @@ function setup() {
       }
       ships = data_ship
 
-      leaderboard = data_ship
+      leaderboard = data_ship.slice(0)
       leaderboard.sort((a, b) => {
           return b.Score - a.Score
       })
@@ -152,7 +152,7 @@ function draw() {
     text('Preparing game\n' + ui.Time + ' seconds left', width / 2, 40);
 
     // Hello
-    if (Username != " " || Username != "") {
+    if (Username !== "") {
       textAlign(LEFT);
       textSize(TEXT_SIZE);
       text('Hello ' + Username, 30, 30);
@@ -185,6 +185,13 @@ function draw() {
     textAlign(CENTER);
     textSize(75);
     text("Cosmic.IO", width * 0.5, height * 0.265);
+    pop();
+
+    push();
+    fill(255);
+    textAlign(RIGHT);
+    textSize(12);
+    text("Made by yknomeh && kubastick", width - 10, height - 10);
     pop();
 
   } else if (_canPlay) {
