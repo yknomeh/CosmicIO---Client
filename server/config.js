@@ -3,7 +3,7 @@ global.SERVER_BEAT = 10; /* refreshing in ms */
 global.RENDER_SIZE = 5; /* size of dust rendering */
 global.AMOUNT_OF_DUST = 500; /* amount of dust */
 
-global.LOBBY_TIME = 90; /* lobby/hub time */
+global.LOBBY_TIME = 10; /* lobby/hub time */
 global.GAME_TIME = 1800; /* game time */
 
 global.STARTING_HP = 100;

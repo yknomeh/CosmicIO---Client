@@ -44,6 +44,10 @@ let isSkinChangerOpened = false;
 
 let isSpritesLoaded = false;
 
+// Background
+let bgImg;
+let bgX = 0;
+let bgY = 0;
 
 //Nowe
 let ui = {
@@ -56,6 +60,7 @@ let ui = {
 let Movement = { Left: false, Right: false, Up: false, Down: false, Shoot: false };
 
 function preload() {
+  bgImg = loadImage('./images/tiledmap/map.png')
   for (let i = 0; i < 2; i++) {
     skinImg[i] = loadImage('./images/skins/skin' + i + '.png')
   }
@@ -97,7 +102,7 @@ function setup() {
 
       leaderboard = data_ship.slice(0)
       leaderboard.sort((a, b) => {
-          return b.Score - a.Score
+        return b.Score - a.Score
       })
     }
   });
@@ -121,12 +126,22 @@ function setup() {
   });
 
   usrInput = createInput();
+
+  // xGap = width / cols;
+  // yGap = height / rows;
+
+  // for (let i = 0; i < width; i += xGap) {
+  //   for (let j = 0; j < height; j += yGap) {
+  //     let p = createVector(i, j)
+  //     gPos.push(p)
+  //   }
+  // }
+
 }
 
 
 function draw() {
   background(0)
-
   push();
   usrInput.position(width * 0.35, height / 2.3);
   usrInput.class('hub');
@@ -199,6 +214,13 @@ function draw() {
 
     $('.hub').hide();
 
+    //Parallax
+    push()
+    // translate(-this_Ship.X, -this_Ship.Y);    
+    image(bgImg, bgX, bgY, bgImg.width, bgImg.height)
+    bgX = -this_Ship.X * 1 / 3
+    bgY = -this_Ship.Y * 1 / 3
+    pop()
     push();
 
     // TIMER
@@ -256,7 +278,6 @@ function draw() {
     zoom = lerp(zoom, newscale, 0.1);
     scale(zoom);
     translate(-this_Ship.X, -this_Ship.Y);
-
     for (let i = weapon.length - 1; i >= 0; i--) {
 
       weapon[i].render();
@@ -282,22 +303,22 @@ function draw() {
         isSpritesLoaded = true;
       }
 
-      
+
       sprites[i].position.x = ships[i].X
       sprites[i].position.y = ships[i].Y
       sprites[i].rotation = degrees(ships[i].Heading)
 
       sprites[i].addImage(skinImg[ships[i].SkinId == null ? 0 : ships[i].SkinId])
-    
+
       pop()
       push();
-      
+
       fill(0, 255, 0);
       textAlign(CENTER);
       textSize(TEXT_SIZE);
       text(ships[i].Username + '\n <3: ' + ships[i].Health, ships[i].X, ships[i].Y + 150);
       pop()
-      
+
     }
     drawSprites();
 
