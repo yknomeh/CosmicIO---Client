@@ -53,7 +53,7 @@ let ui = {
   // alert: { message: 'test2', duration: 1 }
 }
 
-let Movement = { Left: false, Right: false, Up: false, Down: false };
+let Movement = { Left: false, Right: false, Up: false, Down: false, Shoot: false };
 
 function preload() {
   for (let i = 0; i < 2; i++) {
@@ -368,14 +368,7 @@ function keyPressed() {
   } else if (keyCode == 32) {
     // On Press 'Space'
     if (_canPlay) {
-      //TODO <-- weapon
-
-      // let weaponData = {
-      //   x: ship.pos.x,
-      //   y: ship.pos.y,
-      //   heading: ship.heading
-      // }
-      // socket.emit('weapon', weaponData);
+      Movement.Shoot = true;
     }
   } else if (keyCode == 13) {
     // On Press 'Enter'
@@ -421,6 +414,7 @@ function keyReleased() {
     // On Release 'Shift'
   } else if (keyCode == 32) {
     // On Release 'Space'
+    Movement.Shoot = false;
   }
   socket.emit('movement', Movement);
 }
