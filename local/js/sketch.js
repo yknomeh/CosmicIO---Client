@@ -73,7 +73,7 @@ function setup() {
   );
 
   // Connection
-  socket = io.connect('http://' + window.location.hostname + ':3333');
+  socket = io.connect('http://' + window.location.hostname + ':' + window.location.port);
 
   //UI update
   socket.on('ui', (data) => {
