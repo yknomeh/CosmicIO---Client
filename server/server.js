@@ -1,4 +1,4 @@
-//Imports
+// Imports
 
 const express = require('express')
 const socket = require('socket.io')
@@ -28,12 +28,14 @@ let spectators = [];
 
 let disconnectALL = false;
 
+// Browser screen and title
 let hubNgameData = {
   title: 'CosmicIO - Preparing match',
   hub: true,
   gate: true
 }
 
+// Alert in the game
 let infoAlert = {
   message: '',
   duration: 0
@@ -324,7 +326,9 @@ io.sockets.on('connection', (socket) => {
 
 
 for (let i = 0; i < AMOUNT_OF_DUST; i++) {
-  let x = Math.random() * (500 * RENDER_SIZE - -500 * RENDER_SIZE) + -500 * RENDER_SIZE;
+  let u = 500:
+  let x = Math.random() * (u * RENDER_SIZE - -500
+* RENDER_SIZE) + -500 * RENDER_SIZE;
   let y = Math.random() * (500 * RENDER_SIZE - -500 * RENDER_SIZE) + -500 * RENDER_SIZE;
   dust[i] = new Dust(15, x, y);
 }
