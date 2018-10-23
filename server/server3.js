@@ -11,8 +11,9 @@ $$ |  $$\ $$ |  $$ | \____$$\ $$ | $$ | $$ |$$ |$$ |              $$ |  $$ |  $$
                                                                                                                                                                
 
 */
-
-//Imports
+// Use strict JS syntax
+"use strict";
+// Imports
 const express = require('express')
 const socket = require('socket.io')
 const app = express()
@@ -45,7 +46,7 @@ game();
 
 function game() {
     console.log("Loading game server");
-    //Connecting
+    // Connecting
     io.sockets.on('connection', (sock) => {
         console.log("Player connected:" + sock.id);
         currentPlayers++;
@@ -101,7 +102,7 @@ function game() {
         lastUpdateTime = currentTime;
     }, SERVER_BEAT);
 
-    //Physics loop
+    // Physics loop
     setInterval(() => {
 
         // The step method moves the bodies forward in time.
@@ -109,7 +110,7 @@ function game() {
 
     }, PHYSICS_TIMESTEP);
 
-    //Server sync loops
+    // Server sync loops
     setInterval(() => {
         syncUI();
     }, SYNC_UI);
@@ -285,7 +286,7 @@ function findLaserIdByTransform(transform) {
     throw "Nazim is gay exception";
 }
 
-//Sync functions
+// Sync functions
 /*              __
                / _)         
         .-^^^-/ /          
